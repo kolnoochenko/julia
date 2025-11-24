@@ -4,26 +4,26 @@ title = 'For My Sunshine'
 theme = 'PaperMod'
 
 # --- БЛОК ПРИВАТНОСТІ ---
-
-# 1. Вимикаємо генерацію карти сайту та RSS (щоб боти не знайшли лінки)
 disableSitemap = true
-disableRSS = true
 disableKinds = ["RSS", "sitemap", "taxonomy", "term"]
 
-# 2. Забороняємо індексацію для пошуковиків
+# --- НАЛАШТУВАННЯ ТЕМИ ---
 [params]
-  env = "production" # PaperMod використовує це для аналітики
-  # Цей параметр додасть meta name="robots" content="noindex" у заголовок
-  robots = "noindex, nofollow" 
-  # ... інші налаштування ...
-  analytics = { google = { SiteVerificationTag = "XYZ", GTag = "G-BQ7Y53BCDL" } }
+  env = "production"
+  robots = "noindex, nofollow"
+  defaultTheme = "auto"
+
+  # Логотип зліва зверху (в меню)
   [params.label]
-    text = "For My Sunshine"  <-- Це буде написано зліва зверху в меню
-    icon = "/favicon.png"  <-- (можна навіть іконку додати, якщо є)
+    text = "For My Sunshine"
+    icon = "/apple-touch-icon.png"
+
+  # Фавіконки (картинки на вкладці)
   [params.assets]
     favicon = "/favicon.ico"
     favicon16x16 = "/favicon-16x16.png"
     favicon32x32 = "/favicon-32x32.png"
     apple_touch_icon = "/apple-touch-icon.png"
-# Вимикаємо кнопку "Home" в меню, щоб випадковий гість бачив порожній екран
+
+# Порожнє меню (щоб не було кнопки Home)
 [menu]
