@@ -185,6 +185,10 @@
   },
   "active": "2386b544a783e0f3",
   "lastOpenFiles": [
+    "static/favicon-32x32.png",
+    "static/favicon-16x16.png",
+    "static/favicon.ico",
+    "static/apple-touch-icon.png",
     "favicon.png",
     "layouts/partials/footer.html",
     "content/secret-view-j/first-post.md",
