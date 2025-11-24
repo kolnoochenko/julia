@@ -17,6 +17,9 @@ disableKinds = ["RSS", "sitemap", "taxonomy", "term"]
   robots = "noindex, nofollow" 
   # ... інші налаштування ...
   analytics = { google = { SiteVerificationTag = "XYZ", GTag = "G-BQ7Y53BCDL" } }
+  [params.label]
+    text = "For My Sunshine"  <-- Це буде написано зліва зверху в меню
+    icon = "/favicon.png"  <-- (можна навіть іконку додати, якщо є)
 
 # Вимикаємо кнопку "Home" в меню, щоб випадковий гість бачив порожній екран
 [menu]
