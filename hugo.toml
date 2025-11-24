@@ -1,0 +1,20 @@
+baseURL = 'https://ваш-майбутній-сайт.pages.dev/'
+languageCode = 'uk-ua'
+title = 'My Notes'
+theme = 'PaperMod'
+
+# --- БЛОК ПРИВАТНОСТІ ---
+
+# 1. Вимикаємо генерацію карти сайту та RSS (щоб боти не знайшли лінки)
+disableSitemap = true
+disableRSS = true
+disableKinds = ["RSS", "sitemap", "taxonomy", "term"]
+
+# 2. Забороняємо індексацію для пошуковиків
+[params]
+  env = "production" # PaperMod використовує це для аналітики
+  # Цей параметр додасть meta name="robots" content="noindex" у заголовок
+  robots = "noindex, nofollow" 
+
+# Вимикаємо кнопку "Home" в меню, щоб випадковий гість бачив порожній екран
+[menu]
