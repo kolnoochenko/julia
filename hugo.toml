@@ -1,4 +1,4 @@
-baseURL = 'https://ваш-майбутній-сайт.pages.dev/'
+baseURL = 'https://kolnoochenko.github.io/julia/'
 languageCode = 'uk-ua'
 title = 'My Notes'
 theme = 'PaperMod'
