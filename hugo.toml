@@ -1,6 +1,6 @@
 baseURL = 'https://for-my-sunshine.com.ua/'
 languageCode = 'uk-ua'
-title = 'My Notes'
+title = 'For My Sunshine'
 theme = 'PaperMod'
 
 # --- БЛОК ПРИВАТНОСТІ ---
