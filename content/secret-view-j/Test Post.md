@@ -1,7 +1,7 @@
 ---
 title: Untitled
 date: 2025-11-26T02:50:48+02:00
-draft: true
+draft: false
 summary: ""
 cover:
   image: /images/cover.jpg
