@@ -1,5 +1,5 @@
 {
-  "remoteURL": "",
+  "remoteURL": "https://github.com/kolnoochenko/julia.git",
   "gitLocation": "",
   "syncinterval": 0,
   "isSyncOnLoad": true,
