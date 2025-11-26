@@ -4,35 +4,24 @@
     "type": "split",
     "children": [
       {
-        "id": "aea224a982f2a196",
+        "id": "ac053cf30c3418d8",
         "type": "tabs",
         "children": [
           {
-            "id": "0b4c53c34b1bc1be",
+            "id": "fd04669de57f4537",
             "type": "leaf",
             "state": {
-              "type": "image",
+              "type": "markdown",
               "state": {
-                "file": "favicon.png"
+                "file": "content/secret-view-j/Test Post.md",
+                "mode": "source",
+                "source": false
               },
-              "icon": "lucide-image",
-              "title": "favicon"
-            }
-          },
-          {
-            "id": "4f9d79559bfbfe34",
-            "type": "leaf",
-            "state": {
-              "type": "release-notes",
-              "state": {
-                "currentVersion": "1.10.6"
-              },
-              "icon": "lucide-book-up",
-              "title": "Release Notes 1.10.6"
+              "icon": "lucide-file",
+              "title": "Test Post"
             }
           }
-        ],
-        "currentTab": 1
+        ]
       }
     ],
     "direction": "vertical"
@@ -196,8 +185,9 @@
       "templater-obsidian:Templater": false
     }
   },
-  "active": "4f9d79559bfbfe34",
+  "active": "fd04669de57f4537",
   "lastOpenFiles": [
+    "content/secret-view-j/Test Post.md",
     "content/secret-view-j/No more \"What ifs...\".md",
     "content/secret-view-j/Імя.md",
     "Templates/hugo template.md",
