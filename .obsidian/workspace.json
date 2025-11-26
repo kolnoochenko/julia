@@ -11,14 +11,10 @@
             "id": "87b5a631ac63cc6d",
             "type": "leaf",
             "state": {
-              "type": "markdown",
-              "state": {
-                "file": "content/secret-view-j/Test Post.md",
-                "mode": "source",
-                "source": false
-              },
+              "type": "empty",
+              "state": {},
               "icon": "lucide-file",
-              "title": "Test Post"
+              "title": "New tab"
             }
           }
         ]
@@ -156,13 +152,12 @@
             "state": {
               "type": "outline",
               "state": {
-                "file": "content/secret-view-j/Test Post.md",
                 "followCursor": false,
                 "showSearch": false,
                 "searchQuery": ""
               },
               "icon": "lucide-list",
-              "title": "Outline of Test Post"
+              "title": "Outline"
             }
           }
         ],
@@ -187,9 +182,9 @@
   },
   "active": "87b5a631ac63cc6d",
   "lastOpenFiles": [
+    "content/secret-view-j/Test Post.md",
     "Untitled.base",
     "Untitled 1.base",
-    "content/secret-view-j/Test Post.md",
     "content/secret-view-j/No more \"What ifs...\".md",
     "content/secret-view-j/Імя.md",
     "Templates/hugo template.md",
