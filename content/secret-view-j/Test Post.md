@@ -1,7 +1,7 @@
 ---
-title: Untitled
+title: Test post
 date: 2025-11-26T02:50:48+02:00
-draft: false
+draft: true
 summary: ""
 cover:
   image: /images/cover.jpg
