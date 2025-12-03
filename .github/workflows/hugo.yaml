@@ -22,6 +22,7 @@ jobs:
         uses: actions/checkout@v4
         with:
           submodules: recursive
+          fetch-depth: 0
       - name: Setup Hugo
         uses: peaceiris/actions-hugo@v3
         with:
@@ -47,24 +48,26 @@ jobs:
       - name: Send Telegram Notification
         if: success()
         run: |
-          # 1. Знаходимо файл, який змінився (шукаємо .md файл у папці content)
-          CHANGED_FILE=$(git diff-tree --no-commit-id --name-only -r ${{ github.sha }} | grep "content/.*\.md$" | head -n 1)
+          # 1. Шукаємо файл, який змінився в останньому коміті
+          CHANGED_FILE=$(git diff --name-only HEAD^ HEAD | grep "content/.*\.md$" | head -n 1)
 
-          # 2. Витягуємо з нього заголовок (Title)
-          if [ -n "$CHANGED_FILE" ] && [ -f "$CHANGED_FILE" ]; then
-              # Знаходимо рядок title:, видаляємо саме слово і лапки
+          # Якщо файл знайдено
+          if [ -n "$CHANGED_FILE" ]; then
+              
+              # 2. Витягуємо заголовок (видаляємо лапки)
               POST_TITLE=$(grep "^title:" "$CHANGED_FILE" | sed 's/^title:[[:space:]]*//' | tr -d '"' | tr -d "'")
-          else
-              # Якщо не знайшли файл (наприклад, ви правили тільки конфіг), беремо текст коміту
-              POST_TITLE="${{ github.event.head_commit.message }}"
-          fi
+              
+              # 3. Формуємо пряме посилання
+              # Видаляємо 'content/' з початку і '.md' з кінця
+              SLUG=$(echo "$CHANGED_FILE" | sed 's/^content\///' | sed 's/\.md$//')
+              POST_LINK="https://for-my-sunshine.com.ua/$SLUG/"
 
-          # 3. Відправляємо в Телеграм (URL замініть на свій!)
-          curl -s -X POST https://api.telegram.org/bot${{ secrets.TELEGRAM_TOKEN }}/sendMessage \
-          -d chat_id=${{ secrets.TELEGRAM_CHAT_ID }} \
-          -d parse_mode=HTML \
-          -d text="💌 <b>Новий запис!</b>
+              # 4. Відправляємо
+              curl -s -X POST https://api.telegram.org/bot${{ secrets.TELEGRAM_TOKEN }}/sendMessage \
+              -d chat_id=${{ secrets.TELEGRAM_CHAT_ID }} \
+              -d parse_mode=HTML \
+              -d text="💌 <b>Новий запис!</b>%0A%0A📝 Тема: $POST_TITLE%0A%0A$POST_LINK"
           
-          📝 Тема: $POST_TITLE
-          
-          https://for-my-sunshine.com.ua/secret-view-j/"
+          else
+              echo "No markdown changes detected."
+          fi
