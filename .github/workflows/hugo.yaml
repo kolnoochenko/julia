@@ -45,13 +45,21 @@ jobs:
       - name: Deploy to GitHub Pages
         id: deployment
         uses: actions/deploy-pages@v4
+
+      # --- ВАЖЛИВО: Завантажуємо код, щоб працювали команди git ---
+      - name: Checkout code for Telegram
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      # ------------------------------------------------------------
+
       - name: Send Telegram Notification
         if: success()
         run: |
-          # 1. Дивимося всередину поточного коміту (github.sha)
+          # 1. Шукаємо файл, який змінився в останньому коміті
           CHANGED_FILE=$(git diff-tree --no-commit-id --name-only -r ${{ github.sha }} | grep "content/.*\.md$" | head -n 1)
 
-          echo "Found file: $CHANGED_FILE" # Для відладки в логах
+          echo "Found file: $CHANGED_FILE"
 
           if [ -n "$CHANGED_FILE" ]; then
               
