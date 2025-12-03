@@ -47,14 +47,24 @@ jobs:
       - name: Send Telegram Notification
         if: success()
         run: |
-          COMMIT_MSG="${{ github.event.head_commit.message }}"
-          
-          # Використовуємо HTML замість Markdown, це надійніше
+          # 1. Знаходимо файл, який змінився (шукаємо .md файл у папці content)
+          CHANGED_FILE=$(git diff-tree --no-commit-id --name-only -r ${{ github.sha }} | grep "content/.*\.md$" | head -n 1)
+
+          # 2. Витягуємо з нього заголовок (Title)
+          if [ -n "$CHANGED_FILE" ] && [ -f "$CHANGED_FILE" ]; then
+              # Знаходимо рядок title:, видаляємо саме слово і лапки
+              POST_TITLE=$(grep "^title:" "$CHANGED_FILE" | sed 's/^title:[[:space:]]*//' | tr -d '"' | tr -d "'")
+          else
+              # Якщо не знайшли файл (наприклад, ви правили тільки конфіг), беремо текст коміту
+              POST_TITLE="${{ github.event.head_commit.message }}"
+          fi
+
+          # 3. Відправляємо в Телеграм (URL замініть на свій!)
           curl -s -X POST https://api.telegram.org/bot${{ secrets.TELEGRAM_TOKEN }}/sendMessage \
           -d chat_id=${{ secrets.TELEGRAM_CHAT_ID }} \
           -d parse_mode=HTML \
-          -d text="💌 <b>Новий запис на блозі!</b>
+          -d text="💌 <b>Новий запис!</b>
           
-          📝 Тема: $COMMIT_MSG
+          📝 Тема: $POST_TITLE
           
-          👉 <a href='https://for-my-sunshine.com.ua/secret-view-A1B2/'>Читати тут</a>"
+          https://for-my-sunshine.com.ua/secret-view-A1B2/"
