@@ -48,16 +48,17 @@ jobs:
       - name: Send Telegram Notification
         if: success()
         run: |
-          # 1. Шукаємо файл, який змінився в останньому коміті
-          CHANGED_FILE=$(git diff --name-only HEAD^ HEAD | grep "content/.*\.md$" | head -n 1)
+          # 1. Дивимося всередину поточного коміту (github.sha)
+          CHANGED_FILE=$(git diff-tree --no-commit-id --name-only -r ${{ github.sha }} | grep "content/.*\.md$" | head -n 1)
 
-          # Якщо файл знайдено
+          echo "Found file: $CHANGED_FILE" # Для відладки в логах
+
           if [ -n "$CHANGED_FILE" ]; then
               
-              # 2. Витягуємо заголовок (видаляємо лапки)
+              # 2. Витягуємо Title (видаляємо title: і лапки)
               POST_TITLE=$(grep "^title:" "$CHANGED_FILE" | sed 's/^title:[[:space:]]*//' | tr -d '"' | tr -d "'")
               
-              # 3. Формуємо пряме посилання
+              # 3. Формуємо посилання
               # Видаляємо 'content/' з початку і '.md' з кінця
               SLUG=$(echo "$CHANGED_FILE" | sed 's/^content\///' | sed 's/\.md$//')
               POST_LINK="https://for-my-sunshine.com.ua/$SLUG/"
@@ -69,5 +70,5 @@ jobs:
               -d text="💌 <b>Новий запис!</b>%0A%0A📝 Тема: $POST_TITLE%0A%0A$POST_LINK"
           
           else
-              echo "No markdown changes detected."
+              echo "No markdown file changes found in this commit."
           fi
