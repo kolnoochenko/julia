@@ -96,7 +96,7 @@ jobs:
               COMMIT_MSG="${{ github.event.head_commit.message }}"
               
               # !!! ВАЖЛИВО: ЗАМІНІТЬ secret-view-A1B2 НА ВАШУ РЕАЛЬНУ ПАПКУ !!!
-              MESSAGE="⚙️ <b>Блог оновлено!</b>%0A%0AКоментар: $COMMIT_MSG%0A%0A👉 https://for-my-sunshine.com.ua/secret-view-A1B2/"
+              MESSAGE="⚙️ <b>Блог оновлено!</b>%0A%0AКоментар: $COMMIT_MSG%0A%0A👉 https://for-my-sunshine.com.ua/secret-view-j/"
           fi
 
           echo "Відправляємо запит в Telegram..."
