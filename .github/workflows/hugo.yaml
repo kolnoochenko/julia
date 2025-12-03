@@ -44,3 +44,19 @@ jobs:
       - name: Deploy to GitHub Pages
         id: deployment
         uses: actions/deploy-pages@v4
+      - name: Send Telegram Notification
+        if: success() # Виконується тільки якщо сайт успішно зібрався
+        run: |
+          # Формуємо повідомлення
+          # Беремо текст останнього коміту як опис
+          COMMIT_MSG="${{ github.event.head_commit.message }}"
+          
+          # Відправляємо запит
+          curl -s -X POST https://api.telegram.org/bot${{ secrets.TELEGRAM_TOKEN }}/sendMessage \
+          -d chat_id=${{ secrets.TELEGRAM_CHAT_ID }} \
+          -d parse_mode=Markdown \
+          -d text="💌 *Новий запис на блозі!*
+          
+          📝 Тема: _$COMMIT_MSG_
+          
+          👉 [Читати тут](https://for-my-sunshine.com.ua/secret-view-j/)"  
