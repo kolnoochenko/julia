@@ -1,0 +1,9 @@
+/* Фарбуємо назву файлу в помаранчевий */
+.tree-item-inner[data-link-draft="true"] {
+    color: #ff9f43 !important;
+}
+
+/* Додаємо іконку перед назвою */
+.tree-item-inner[data-link-draft="true"]::before {
+    content: "🚧 ";
+}

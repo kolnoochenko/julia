@@ -1,1 +1,6 @@
-{}
+{
+  "enabledCssSnippets": [
+    "supercharged-links-gen",
+    "draft"
+  ]
+}
