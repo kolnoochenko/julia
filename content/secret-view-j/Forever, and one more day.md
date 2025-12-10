@@ -1,5 +1,5 @@
 ---
-title: Forever, and one more day.
+title: Forever, and one more day
 date: 2025-12-10T02:31:38+02:00
 draft: false
 summary: ""
