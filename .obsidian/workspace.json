@@ -240,6 +240,8 @@
   },
   "active": "2e857226300a2f99",
   "lastOpenFiles": [
+    "layouts/_default/list.html",
+    "layouts/_default",
     "layouts/partials/header.html",
     "static/images/putaneska.jpg",
     "content/secret-view-j/Putaneska.md",
@@ -270,8 +272,6 @@
     "public/page/1/index.html",
     "public/page/1",
     "public/page",
-    "public/index.html",
-    "public/secret-view-j/page/1/index.html",
     "public/favicon-32x32.png",
     "public/favicon-16x16.png",
     "public/apple-touch-icon.png",
