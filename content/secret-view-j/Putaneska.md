@@ -4,7 +4,7 @@ date: 2025-12-15T01:54:07+02:00
 draft: false
 summary: ""
 cover:
-  image: /images/putaneska.jpg
+  image: /images/putaneska-gemini.jpg
   alt: Untitled
   caption: ""
   relative: false

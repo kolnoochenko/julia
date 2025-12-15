@@ -238,13 +238,19 @@
       "obsidian-shellcommands:Shell commands: Custom variables": false
     }
   },
-  "active": "2e857226300a2f99",
+  "active": "0c8980751203866c",
   "lastOpenFiles": [
+    "static/images/putaneska-gemini.jpg",
+    "content/secret-view-j/Putaneska.md",
+    "static/images/putaneska-cover-gs.jpg",
+    "static/images/putaneska-cover-gs.png",
+    "static/images/putaneska-cover-g.png",
+    "static/images/Unconfirmed 822181.crdownload",
+    "static/images/putaneska-cover.jpg",
     "layouts/_default/list.html",
     "layouts/_default",
     "layouts/partials/header.html",
     "static/images/putaneska.jpg",
-    "content/secret-view-j/Putaneska.md",
     "static/images/Pasted image 20251215025453.png",
     "static/images",
     "content/secret-view-j/Your Lifetime Premium.md",
@@ -270,15 +276,9 @@
     "layouts/index.html",
     "content/secret-view-j/first-post.md",
     "public/page/1/index.html",
-    "public/page/1",
-    "public/page",
     "public/favicon-32x32.png",
     "public/favicon-16x16.png",
     "public/apple-touch-icon.png",
-    "static/favicon-32x32.png",
-    "static/favicon-16x16.png",
-    "static/apple-touch-icon.png",
-    "favicon.png",
     "Untitled.canvas"
   ]
 }
