@@ -2,6 +2,7 @@
 title: Зимова казка
 date: 2025-12-24T01:48:55+02:00
 draft: false
+snow: true
 summary: Заплющ очі, рідненька, і дозволь мені забрати тебе туди, де світ належить тільки нам двом.
 cover:
   image: /images/winter-story.jpg

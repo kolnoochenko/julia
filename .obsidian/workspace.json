@@ -240,6 +240,9 @@
   },
   "active": "2a473014562f8e94",
   "lastOpenFiles": [
+    "layouts/_default/single.html",
+    "layouts/partials/snow.html",
+    "layouts/partials/now-effect.html",
     "static/images/winter-story.jpg",
     "content/secret-view-j/Winter Story.md",
     "content/secret-view-j/Not a script. Just you..md",
@@ -277,9 +280,7 @@
     "content/secret-view-j/Імя.md",
     "Templates/hugo template.md",
     "Templates",
-    "layouts/index.html",
     "content/secret-view-j/first-post.md",
-    "public/page/1/index.html",
     "public/favicon-32x32.png",
     "Untitled.canvas"
   ]
