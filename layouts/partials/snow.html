@@ -1,4 +1,3 @@
-cat <<EOF > layouts/partials/snow.html
 <style>
     #snow-canvas {
         position: fixed;
@@ -6,8 +5,8 @@ cat <<EOF > layouts/partials/snow.html
         left: 0;
         width: 100%;
         height: 100%;
-        pointer-events: none;
-        z-index: 9999;
+        pointer-events: none; /* Щоб сніг не перехоплював кліки мишкою */
+        z-index: 9999; /* Поверх усього */
     }
 </style>
 <canvas id="snow-canvas"></canvas>
@@ -18,21 +17,32 @@ cat <<EOF > layouts/partials/snow.html
     var width = canvas.width = window.innerWidth;
     var height = canvas.height = window.innerHeight;
     var flakes = [];
-    var maxFlakes = 100; // Кількість сніжинок
-    var minSize = 1; var maxSize = 3; // Розмір
-    var minSpeed = 0.5; var maxSpeed = 2; // Швидкість
 
+    // --- НАЛАШТУВАННЯ ---
+    var maxFlakes = 100; // Кількість сніжинок на екрані
+    var minSize = 1;     // Мінімальний розмір сніжинки
+    var maxSize = 3;     // Максимальний розмір сніжинки
+
+    // ШВИДКІСТЬ (чим менше число, тим повільніше)
+    // Спробуйте значення від 0.1 до 1.0
+    var minSpeed = 0.2;  // Мінімальна швидкість падіння
+    var maxSpeed = 0.5;  // Максимальна швидкість падіння
+    // --------------------
+
+    // Створення початкових сніжинок
     for (var i = 0; i < maxFlakes; i++) {
         flakes.push({
             x: Math.random() * width,
             y: Math.random() * height,
-            r: Math.random() * (maxSize - minSize) + minSize,
-            d: Math.random() * maxFlakes
+            r: Math.random() * (maxSize - minSize) + minSize, // радіус
+            s: Math.random() * (maxSpeed - minSpeed) + minSpeed // індивідуальна швидкість
         });
     }
+
+    // Малювання кадрів
     function drawFlakes() {
         ctx.clearRect(0, 0, width, height);
-        ctx.fillStyle = "rgba(255, 255, 255, 0.8)";
+        ctx.fillStyle = "rgba(255, 255, 255, 0.8)"; // Колір: білий, трохи прозорий
         ctx.beginPath();
         for (var i = 0; i < maxFlakes; i++) {
             var f = flakes[i];
@@ -42,23 +52,37 @@ cat <<EOF > layouts/partials/snow.html
         ctx.fill();
         moveFlakes();
     }
+
+    // Логіка руху
     var angle = 0;
     function moveFlakes() {
         angle += 0.01;
         for (var i = 0; i < maxFlakes; i++) {
             var f = flakes[i];
-            f.y += Math.pow(f.d, 2) + 1;
-            f.x += Math.sin(angle) * 2;
+            // Оновлення координат
+            f.y += f.s; // Рух вниз з власною швидкістю
+            f.x += Math.sin(angle + f.s) * 0.5; // Легке хитання вліво-вправо
+
+            // Якщо сніжинка вилетіла за нижній край екрану
             if (f.y > height) {
-                flakes[i] = { x: Math.random() * width, y: 0, r: f.r, d: f.d };
+                // Повертаємо її нагору в випадкову позицію
+                flakes[i] = {
+                    x: Math.random() * width,
+                    y: -10, // трохи вище екрану
+                    r: f.r,
+                    s: f.s
+                };
             }
         }
     }
+
+    // Оновлення розмірів canvas при зміні розміру вікна браузера
     window.addEventListener('resize', function() {
         width = canvas.width = window.innerWidth;
         height = canvas.height = window.innerHeight;
     });
-    setInterval(drawFlakes, 25);
+
+    // Запуск анімації (приблизно 30 кадрів на секунду)
+    setInterval(drawFlakes, 33);
 })();
 </script>
-EOF
