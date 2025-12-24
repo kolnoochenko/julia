@@ -1,13 +1,6 @@
 
-{{- /* --- ЛОГІКА ТЕМИ (СНІГ = ТЕМНА ТЕМА) --- */ -}}
-{{- if .Params.snow }}
+{{- /* --- СТАНДАРТНА ЛОГІКА ТЕМИ PAPERMOD (Повертаємо як було) --- */ -}}
 <script>
-    // Якщо увімкнено сніг, примусово ставимо темний клас
-    document.body.classList.add('dark');
-</script>
-{{- else -}}
-<script>
-    // Стандартна логіка PaperMod
     if (localStorage.getItem("pref-theme") === "dark") {
         document.body.classList.add('dark');
     } else if (localStorage.getItem("pref-theme") === "light") {
@@ -16,8 +9,30 @@
         document.body.classList.add('dark');
     }
 </script>
-{{- end -}}
-{{- /* --- КІНЕЦЬ ЛОГІКИ ТЕМИ --- */ -}}
+{{- /* --- КІНЕЦЬ СТАНДАРТНОЇ ЛОГІКИ --- */ -}}
+
+{{- /* --- ПРИМУСОВИЙ ТЕМНИЙ ФОН ЧЕРЕЗ CSS ДЛЯ СНІГУ --- */ -}}
+{{- if .Params.snow }}
+<style>
+    /*
+      Ми примусово перевизначаємо змінні кольорів теми PaperMod
+      на їхні темні варіанти. !important гарантує, що цей стиль
+      переможе будь-які інші налаштування на цій сторінці.
+    */
+    :root {
+        --theme: #1d1e20 !important; /* Темний фон */
+        --entry: #2e2e33 !important;
+        --primary: rgba(255, 255, 255, 0.84) !important; /* Світлий текст */
+        --secondary: rgba(255, 255, 255, 0.56) !important;
+        --tertiary: rgba(255, 255, 255, 0.16) !important;
+        --content: rgba(255, 255, 255, 0.74) !important;
+        --hljs-bg: #2e2e33 !important;
+        --code-bg: #37383e !important;
+        --border: #333 !important;
+    }
+</style>
+{{- end }}
+{{- /* --- КІНЕЦЬ CSS ХАКУ --- */ -}}
 
 <header class="header">
     <nav class="nav">
