@@ -1,3 +1,24 @@
+
+{{- /* --- ЛОГІКА ТЕМИ (СНІГ = ТЕМНА ТЕМА) --- */ -}}
+{{- if .Params.snow }}
+<script>
+    // Якщо увімкнено сніг, примусово ставимо темний клас
+    document.body.classList.add('dark');
+</script>
+{{- else -}}
+<script>
+    // Стандартна логіка PaperMod
+    if (localStorage.getItem("pref-theme") === "dark") {
+        document.body.classList.add('dark');
+    } else if (localStorage.getItem("pref-theme") === "light") {
+        document.body.classList.remove('dark')
+    } else if (window.matchMedia('(prefers-color-scheme: dark)').matches && localStorage.getItem("pref-theme") !== "light") {
+        document.body.classList.add('dark');
+    }
+</script>
+{{- end -}}
+{{- /* --- КІНЕЦЬ ЛОГІКИ ТЕМИ --- */ -}}
+
 <header class="header">
     <nav class="nav">
         <div class="logo">
@@ -54,7 +75,7 @@
                     </svg>
                 </button>
                 {{- end }}
-                
+
                 {{- if (not site.Params.disableLangToggle) }}
                     {{- $lang := .Lang}}
                     {{- $separator := or $label_text (not site.Params.disableThemeToggle)}}
@@ -82,8 +103,7 @@
         </div>
         {{- $currentPage := . }}
         <ul id="menu">
-            
-            {{- /* --- ПОЧАТОК ВСТАВКИ --- */}}
+            {{- /* --- КНОПКА НАЗАД --- */}}
             {{- if not .IsHome }}
             <li>
                 <a href="/secret-view-j/" title="Повернутися до списку">
@@ -91,8 +111,8 @@
                 </a>
             </li>
             {{- end }}
-            {{- /* --- КІНЕЦЬ ВСТАВКИ --- */}}
-            
+            {{- /* --- КІНЕЦЬ КНОПКИ НАЗАД --- */}}
+
             {{- range site.Menus.main }}
             {{- $menu_item_url := (cond (strings.HasSuffix .URL "/") .URL (printf "%s/" .URL) ) | absLangURL }}
             {{- $page_url:= $currentPage.Permalink | absLangURL }}
