@@ -4,7 +4,7 @@ date: 2026-04-08T22:00:00+02:00
 draft: false
 summary: ""
 cover:
-  image: /images/image_8.png
+  image: /images/image_8.jpg
   alt: Untitled
   caption: ""
   relative: false
