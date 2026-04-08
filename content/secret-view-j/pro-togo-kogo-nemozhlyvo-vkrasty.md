@@ -1,7 +1,7 @@
 ---
 title: Про того, кого неможливо вкрасти
 date: 2026-04-09T00:53:29+02:00
-draft: true
+draft: false
 summary: ""
 cover:
   image: /images/cover.jpg
