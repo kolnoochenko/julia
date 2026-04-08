@@ -1,6 +1,6 @@
 ---
 title: Про того, кого неможливо вкрасти
-date: 2026-04-09T00:53:29+02:00
+date: 2026-04-08T22:00:00+02:00
 draft: false
 summary: ""
 cover:
@@ -8,6 +8,7 @@ cover:
   alt: Untitled
   caption: ""
   relative: false
+slug: pro-togo-kogo-nemozhlyvo-vkrasty
 ---
 Моя рідна,
 
