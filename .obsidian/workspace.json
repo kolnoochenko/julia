@@ -29,7 +29,7 @@
               "state": {
                 "file": "content/secret-view-j/pro-togo-kogo-nemozhlyvo-vkrasty.md",
                 "mode": "source",
-                "source": false
+                "source": true
               },
               "icon": "lucide-file",
               "title": "pro-togo-kogo-nemozhlyvo-vkrasty"
@@ -255,6 +255,8 @@
   },
   "active": "5393e1cc76f9d4f0",
   "lastOpenFiles": [
+    "static/images/image_8.png",
+    "static/images/Unconfirmed 481197.crdownload",
     "content/secret-view-j/Putaneska.md",
     "content/secret-view-j/pro-togo-kogo-nemozhlyvo-vkrasty.md",
     "layouts/_default/single.html",
@@ -292,7 +294,6 @@
     "content/secret-view-j/dscsdcdscs.md",
     "content/secret-view-j/Test.md",
     "content/secret-view-j/Test Post.md",
-    "Untitled 1.base",
     "content/secret-view-j/Імя.md",
     "Templates/hugo template.md",
     "content/secret-view-j/first-post.md",
