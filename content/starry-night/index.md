@@ -1,65 +1,81 @@
 ---
-title: "Для моєї зірочки Юлі"
-date: 2023-10-27
-# Спробуємо вимкнути стандартні елементи теми, щоб небо було на весь екран
-# (Назви параметрів можуть відрізнятися залежно від твоєї теми Hugo)
-layout: "blank" # Якщо в темі є пустий шаблон
-outputs: ["HTML"]
-# Якщо твоя тема підтримує приховування меню/футера:
-hideHeader: true
-hideFooter: true
+title: "Для Юлі"
+layout: "blank"
 ---
 
 <style>
-    body, html {
-        margin: 0;
-        padding: 0;
-        width: 100%;
-        height: 100%;
-        overflow: hidden; /* Щоб сторінка не скролилася */
-        background-color: #000005; /* Дуже темний синій, майже чорний */
-    }
-
-    #starCanvas {
-        display: block;
-        touch-action: none; /* Важливо для iPhone, щоб вимкнути стандартні жести */
-    }
-
-    /* Повідомлення, яке з'явиться в кінці */
+    body, html { margin: 0; padding: 0; background: #000; overflow: hidden; }
+    #starCanvas { position: fixed; top: 0; left: 0; z-index: 1; touch-action: none; }
     #loveMessage {
-        position: absolute;
-        top: 50%;
-        left: 50%;
-        transform: translate(-50%, -50%);
-        color: white;
-        font-family: 'Georgia', serif; /* Або будь-який гарний шрифт */
-        font-size: 2.5rem;
-        text-align: center;
-        opacity: 0;
-        transition: opacity 2s ease-in-out;
-        pointer-events: none; /* Щоб не заважало малювати */
-        text-shadow: 0 0 10px rgba(255,255,255,0.8);
-        width: 90%;
+        position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%);
+        color: white; font-family: sans-serif; font-size: 24px; text-align: center;
+        opacity: 0; transition: opacity 2s; z-index: 2; pointer-events: none;
     }
-
-    #starCanvas {
-    display: block;
-    position: fixed; /* Фіксуємо на весь екран */
-    top: 0;
-    left: 0;
-    width: 100vw;
-    height: 100vh;
-    z-index: 9999; /* Виносимо на самий передній план */
-    background-color: #000005;
-    touch-action: none;
-}
-#loveMessage {
-    z-index: 10000; /* Текст має бути ще вище */
-}
 </style>
 
 <canvas id="starCanvas"></canvas>
-
 <div id="loveMessage">Ти моє найяскравіше сузір'я, Юля ❤️</div>
 
-<script src="stars.js"></script>.
+<script>
+const canvas = document.getElementById('starCanvas');
+const ctx = canvas.getContext('2d');
+let w, h, stars = [], points = [];
+
+function init() {
+    w = canvas.width = window.innerWidth;
+    h = canvas.height = window.innerHeight;
+    stars = Array.from({length: 150}, () => ({
+        x: Math.random() * w,
+        y: Math.random() * h,
+        s: Math.random() * 2,
+        o: Math.random()
+    }));
+}
+
+function draw() {
+    ctx.fillStyle = '#000005';
+    ctx.fillRect(0, 0, w, h);
+    
+    // Малюємо фонові зірки
+    stars.forEach(s => {
+        ctx.fillStyle = `rgba(255, 255, 255, ${s.o})`;
+        ctx.beginPath();
+        ctx.arc(s.x, s.y, s.s, 0, Math.PI*2);
+        ctx.fill();
+        s.o += (Math.random() - 0.5) * 0.05;
+        if(s.o < 0.1) s.o = 0.1; if(s.o > 1) s.o = 1;
+    });
+
+    // Малюємо лінії сузір'я
+    if (points.length > 1) {
+        ctx.strokeStyle = 'rgba(255, 255, 255, 0.5)';
+        ctx.lineWidth = 2;
+        ctx.beginPath();
+        ctx.moveTo(points[0].x, points[0].y);
+        points.forEach(p => ctx.lineTo(p.x, p.y));
+        ctx.stroke();
+        
+        points.forEach(p => {
+            ctx.fillStyle = 'white';
+            ctx.shadowBlur = 10; ctx.shadowColor = 'white';
+            ctx.beginPath(); ctx.arc(p.x, p.y, 3, 0, Math.PI*2); ctx.fill();
+        });
+        ctx.shadowBlur = 0;
+    }
+    requestAnimationFrame(draw);
+}
+
+canvas.addEventListener('touchmove', e => {
+    e.preventDefault();
+    const touch = e.touches[0];
+    const last = points[points.length - 1];
+    if (!last || Math.hypot(touch.clientX - last.x, touch.clientY - last.y) > 30) {
+        points.push({x: touch.clientX, y: touch.clientY});
+    }
+    if (points.length > 12) document.getElementById('loveMessage').style.opacity = 1;
+}, {passive: false});
+
+window.addEventListener('resize', init);
+init();
+draw();
+</script>
