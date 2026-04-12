@@ -1,0 +1,80 @@
+<!DOCTYPE html>
+<html lang="uk">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Для моєї Юлі</title>
+    <style>
+        body, html { margin: 0; padding: 0; width: 100%; height: 100%; overflow: hidden; background-color: #000005; }
+        canvas { display: block; touch-action: none; }
+        #msg {
+            position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%);
+            color: white; font-family: 'serif'; font-size: 24px; text-align: center;
+            opacity: 0; transition: opacity 3s; pointer-events: none; width: 90%;
+            text-shadow: 0 0 15px rgba(255,255,255,0.5);
+        }
+    </style>
+</head>
+<body>
+    <canvas id="c"></canvas>
+    <div id="msg">Ти моє найяскравіше сузір'я, Юля ❤️</div>
+
+    <script>
+        const canvas = document.getElementById('c');
+        const ctx = canvas.getContext('2d');
+        let w, h, stars = [], points = [];
+
+        function resize() {
+            w = canvas.width = window.innerWidth;
+            h = canvas.height = window.innerHeight;
+        }
+
+        function createStars() {
+            stars = [];
+            for(let i=0; i<150; i++) {
+                stars.push({x: Math.random()*w, y: Math.random()*h, r: Math.random()*1.5, o: Math.random()});
+            }
+        }
+
+        function draw() {
+            ctx.fillStyle = '#000005';
+            ctx.fillRect(0,0,w,h);
+            
+            stars.forEach(s => {
+                ctx.fillStyle = `rgba(255,255,255,${s.o})`;
+                ctx.beginPath(); ctx.arc(s.x, s.y, s.r, 0, Math.PI*2); ctx.fill();
+                s.o += (Math.random()-0.5)*0.02;
+                if(s.o<0.1) s.o=0.1; if(s.o>1) s.o=1;
+            });
+
+            if(points.length > 1) {
+                ctx.strokeStyle = 'rgba(255,255,255,0.4)';
+                ctx.lineWidth = 1.5;
+                ctx.beginPath();
+                ctx.moveTo(points[0].x, points[0].y);
+                points.forEach(p => ctx.lineTo(p.x, p.y));
+                ctx.stroke();
+                points.forEach(p => {
+                    ctx.fillStyle = 'white';
+                    ctx.beginPath(); ctx.arc(p.x, p.y, 2, 0, Math.PI*2); ctx.fill();
+                });
+            }
+            requestAnimationFrame(draw);
+        }
+
+        canvas.addEventListener('touchmove', e => {
+            e.preventDefault();
+            const t = e.touches[0];
+            if(points.length === 0 || Math.hypot(t.clientX - points[points.length-1].x, t.clientY - points[points.length-1].y) > 25) {
+                points.push({x: t.clientX, y: t.clientY});
+            }
+            if(points.length > 10) document.getElementById('msg').style.opacity = 1;
+        }, {passive: false});
+
+        window.addEventListener('resize', resize);
+        resize();
+        createStars();
+        draw();
+    </script>
+</body>
+</html>
