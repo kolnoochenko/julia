@@ -3,42 +3,49 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Для Юлі</title>
+    <title>Для моєї Юлі</title>
     <style>
-        body, html { margin: 0; padding: 0; width: 100%; height: 100%; overflow: hidden; background-color: #000008; }
-        canvas { display: block; touch-action: none; position: fixed; top: 0; left: 0; }
+        body, html { margin: 0; padding: 0; width: 100%; height: 100%; overflow: hidden; background-color: #000010; }
+        canvas { display: block; touch-action: none; position: fixed; top: 0; left: 0; z-index: 1; }
         #msg {
             position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%);
-            color: white; font-family: 'Georgia', serif; font-size: 26px; text-align: center;
-            opacity: 0; transition: opacity 3s; pointer-events: none; width: 85%;
-            text-shadow: 0 0 20px rgba(255,255,255,0.8); z-index: 10;
+            color: white; font-family: 'Georgia', serif; font-size: 28px; text-align: center;
+            opacity: 0; transition: opacity 3s ease-in-out; pointer-events: none; width: 85%;
+            text-shadow: 0 0 25px rgba(255,255,255,0.9); z-index: 10;
         }
         #hint {
-            position: fixed; bottom: 30px; width: 100%; text-align: center;
-            color: rgba(255,255,255,0.5); font-family: sans-serif; font-size: 14px; z-index: 10;
+            position: fixed; bottom: 40px; width: 100%; text-align: center;
+            color: rgba(255,255,255,0.4); font-family: sans-serif; font-size: 15px; z-index: 10;
+            letter-spacing: 1px; animation: pulseHint 2s infinite;
         }
+        @keyframes pulseHint { 0%, 100% { opacity: 0.4; } 50% { opacity: 0.8; } }
     </style>
 </head>
 <body>
     <canvas id="c"></canvas>
     <div id="msg">Ти моє найяскравіше сузір'я, Юля ❤️</div>
-    <div id="hint">З'єднай зірки у формі серця...</div>
+    <div id="hint">Запали серце серед зірок...</div>
 
     <script>
     document.addEventListener('DOMContentLoaded', () => {
         const canvas = document.getElementById('c');
         const ctx = canvas.getContext('2d');
-        let w, h, stars = [], heartPoints = [], isFinished = false;
+        let w, h, stars = [], heartPoints = [], isFinished = false, time = 0;
+
+        // Кольори
+        const colorGold = '#FFD700'; // Золотий для неактивних точок
+        const colorActive = '#FFFFFF'; // Білий для активних точок
+        const colorLine = 'rgba(255, 215, 0, 0.7)'; // Золота лінія
 
         function init() {
             w = canvas.width = window.innerWidth;
             h = canvas.height = window.innerHeight;
             
-            // Створюємо фонові зірки
+            // Фонові зірки (дрібні)
             stars = Array.from({length: 100}, () => ({
                 x: Math.random() * w,
                 y: Math.random() * h,
-                r: Math.random() * 1.5,
+                r: Math.random() * 1.0,
                 o: Math.random()
             }));
 
@@ -46,9 +53,14 @@
             heartPoints = [];
             const centerX = w / 2;
             const centerY = h / 2 - 30;
+            // Адаптивний розмір серця
             const scale = Math.min(w, h) / 30; 
 
-            for (let t = 0; t < Math.PI * 2; t += 0.3) {
+            // Кількість точок (менше = легше обводити, більше = гарніша форма)
+            const totalPoints = 20; 
+            for (let i = 0; i < totalPoints; i++) {
+                const t = (i / totalPoints) * Math.PI * 2;
+                // Формула серця
                 const x = centerX + 16 * Math.pow(Math.sin(t), 3) * scale;
                 const y = centerY - (13 * Math.cos(t) - 5 * Math.cos(2*t) - 2 * Math.cos(3*t) - Math.cos(4*t)) * scale;
                 heartPoints.push({x, y, active: false});
@@ -56,40 +68,63 @@
         }
 
         function draw() {
-            ctx.fillStyle = '#000008';
+            time += 0.05; // Для анімації пульсації
+            ctx.fillStyle = '#000010'; // Глибокий синій
             ctx.fillRect(0, 0, w, h);
 
-            // Малюємо фон
+            // 1. Малюємо фон (мерехтіння)
             stars.forEach(s => {
-                ctx.fillStyle = `rgba(255,255,255,${s.o})`;
+                ctx.fillStyle = `rgba(255, 255, 255, ${s.o})`;
                 ctx.beginPath(); ctx.arc(s.x, s.y, s.r, 0, Math.PI*2); ctx.fill();
                 s.o += (Math.random() - 0.5) * 0.02;
-                if(s.o < 0.1) s.o = 0.1; if(s.o > 1) s.o = 1;
+                if(s.o < 0.1) s.o = 0.1; if(s.o > 0.8) s.o = 0.8;
             });
 
-            // Малюємо точки серця
-            heartPoints.forEach(p => {
-                ctx.shadowBlur = p.active ? 15 : 0;
-                ctx.shadowColor = 'white';
-                ctx.fillStyle = p.active ? 'white' : 'rgba(255,255,255,0.2)';
+            // 2. Малюємо ПУНКТИР-ПІДКАЗКУ (завжди світиться)
+            if (!isFinished) {
+                ctx.strokeStyle = 'rgba(255, 215, 0, 0.15)'; // Дуже тьмяний золотий
+                ctx.lineWidth = 1;
+                ctx.setLineDash([5, 5]); // Пунктир
                 ctx.beginPath();
-                ctx.arc(p.x, p.y, p.active ? 3 : 1.5, 0, Math.PI*2);
-                ctx.fill();
-            });
-            ctx.shadowBlur = 0;
+                ctx.moveTo(heartPoints[0].x, heartPoints[0].y);
+                heartPoints.forEach(p => ctx.lineTo(p.x, p.y));
+                ctx.closePath();
+                ctx.stroke();
+                ctx.setLineDash([]); // Скидаємо пунктир
+            }
 
-            // З'єднуємо активні точки лініями
-            ctx.strokeStyle = 'rgba(255,255,255,0.4)';
-            ctx.lineWidth = 2;
+            // 3. З'єднуємо АКТИВНІ точки золотою лінією
+            ctx.strokeStyle = colorLine;
+            ctx.lineWidth = 3;
+            ctx.shadowBlur = 10;
+            ctx.shadowColor = colorGold;
             ctx.beginPath();
-            let firstActive = true;
+            let hasActive = false;
             heartPoints.forEach((p, i) => {
                 if(p.active) {
-                    if(firstActive) { ctx.moveTo(p.x, p.y); firstActive = false; }
+                    if(!hasActive) { ctx.moveTo(p.x, p.y); hasActive = true; }
                     else { ctx.lineTo(p.x, p.y); }
                 }
             });
             ctx.stroke();
+            ctx.shadowBlur = 0; // Скидаємо тінь
+
+            // 4. Малюємо ТОЧКИ (Золоті пульсуючі або Білі активні)
+            heartPoints.forEach(p => {
+                if (p.active) {
+                    // Спалах при активації
+                    ctx.shadowBlur = 20; ctx.shadowColor = 'white';
+                    ctx.fillStyle = colorActive;
+                    ctx.beginPath(); ctx.arc(p.x, p.y, 4, 0, Math.PI*2); ctx.fill();
+                } else {
+                    // Пульсуюче золото
+                    const pulse = Math.sin(time + (p.x + p.y) * 0.01) * 2;
+                    ctx.shadowBlur = 10 + pulse; ctx.shadowColor = colorGold;
+                    ctx.fillStyle = colorGold;
+                    ctx.beginPath(); ctx.arc(p.x, p.y, 3, 0, Math.PI*2); ctx.fill();
+                }
+            });
+            ctx.shadowBlur = 0;
 
             requestAnimationFrame(draw);
         }
@@ -98,22 +133,32 @@
             if (isFinished) return;
             heartPoints.forEach(p => {
                 const d = Math.hypot(ex - p.x, ey - p.y);
+                // Чутливість (35px) - комфортно для пальця
                 if (d < 35) p.active = true;
             });
 
+            // Перевіряємо, чи всі точки активовані
             if (heartPoints.every(p => p.active)) {
                 isFinished = true;
-                document.getElementById('msg').style.opacity = 1;
-                document.getElementById('hint').style.opacity = 0;
-                if(navigator.vibrate) navigator.vibrate(200);
+                showSuccess();
             }
         }
 
+        function showSuccess() {
+            document.getElementById('msg').style.opacity = 1;
+            document.getElementById('hint').style.opacity = 0;
+            // Ефект фінального спалаху
+            ctx.shadowBlur = 50; ctx.shadowColor = 'white';
+            if(navigator.vibrate) navigator.vibrate([100, 50, 100]);
+        }
+
+        // Події Touch для iPhone
         canvas.addEventListener('touchmove', (e) => {
             e.preventDefault();
             handleTouch(e.touches[0].clientX, e.touches[0].clientY);
         }, {passive: false});
 
+        // Для тестування на десктопі
         canvas.addEventListener('mousemove', (e) => {
             if(e.buttons > 0) handleTouch(e.clientX, e.clientY);
         });
