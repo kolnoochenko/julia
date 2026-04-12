@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>Для моєї Юлі</title>
-    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;1,600&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght=0,400;1,600&display=swap" rel="stylesheet">
     <style>
         body, html { margin: 0; padding: 0; width: 100%; height: 100%; overflow: hidden; background-color: #000008; }
         canvas { display: block; touch-action: none; position: fixed; top: 0; left: 0; z-index: 1; }
@@ -38,10 +38,10 @@
         let w, h, stars = [], heartPoints = [], isFinished = false, flashAlpha = 0;
 
         // Палітра
-        const colorGold = '#FFD700';       // Неактивні точки
-        const colorActive = '#FFFFFF';     // Активні точки (до з'єднання)
-        const colorPink = '#FF69B4';       // Рожевий контур та зірки (після)
-        const colorPinkGlow = '#FF1493';   // Насичене рожеве світіння
+        const colorGold = '#FFD700';       
+        const colorActive = '#FFFFFF';     
+        const colorPink = '#FF69B4';       
+        const colorPinkGlow = '#FF1493';   
 
         function init() {
             w = canvas.width = window.innerWidth;
@@ -92,50 +92,46 @@
                 ctx.closePath(); ctx.stroke(); ctx.setLineDash([]);
             }
 
-            // 3. ЕФЕКТ ТРИВАЛОГО РОЖЕВОГО СПАЛАХУ
+            // 3. Зменшення спалаху (логіка)
             if (flashAlpha > 0) {
-                // Спалах згасає в рожевий
-                ctx.strokeStyle = `rgba(255, 105, 180, ${flashAlpha})`; 
-                ctx.lineWidth = 10; // Трохи товстіший для ефекту
-                ctx.shadowBlur = 100 * flashAlpha;
-                ctx.shadowColor = 'white'; // Основне сяйво біле, контур рожевий
-                ctx.beginPath();
-                ctx.moveTo(heartPoints[0].x, heartPoints[0].y);
-                heartPoints.forEach(p => ctx.lineTo(p.x, p.y));
-                ctx.closePath();
-                ctx.stroke();
-                ctx.shadowBlur = 0;
-                flashAlpha -= 0.012; // Трохи повільніше згасання
+                flashAlpha -= 0.012;
             }
 
-            // 4. Лінія з'єднання (Золота -> Рожева з розмиттям)
-            if (hasActivePoints()) {
-                if (isFinished) {
-                    // Фінальний стан: рожевий з розмиттям
-                    ctx.strokeStyle = colorPink;
-                    ctx.lineWidth = 2.5;
-                    ctx.shadowBlur = 15; // Сильніше розмиття
-                    ctx.shadowColor = colorPinkGlow;
-                } else {
-                    // Процес: тьмяне золото
-                    ctx.strokeStyle = 'rgba(255, 215, 0, 0.5)';
-                    ctx.lineWidth = 1.5;
-                    ctx.shadowBlur = 0;
-                }
-                
-                ctx.beginPath();
-                let hasMoved = false;
-                heartPoints.forEach((p) => {
-                    if(p.active) {
-                        if(!hasMoved) { ctx.moveTo(p.x, p.y); hasMoved = true; }
-                        else { ctx.lineTo(p.x, p.y); }
-                    }
-                });
-                ctx.stroke();
+            // 4. КОНТУР З ЕФЕКТОМ СВІТІННЯ (STACKED GLOW)
+            if (hasActivePoints() && isFinished) {
+                // Малюємо багатошарове світіння поверх лінії
+                ctx.shadowBlur = 0; ctx.setLineDash([]); // Чистимо
+
+                // --- Шар 1: Широкий ореол (Broad Glow) ---
+                ctx.strokeStyle = `rgba(255, 105, 180, ${0.2 + flashAlpha * 0.3})`;
+                ctx.lineWidth = 12 + flashAlpha * 10;
+                ctx.shadowBlur = 40 + flashAlpha * 40; // Дуже широке розмиття
+                ctx.shadowColor = `rgba(255, 20, 147, ${0.4 + flashAlpha * 0.6})`;
+                drawHeartLine();
+
+                // --- Шар 2: Інтенсивне світіння (Intense Glow) ---
+                ctx.strokeStyle = `rgba(255, 20, 147, ${0.5 + flashAlpha * 0.5})`;
+                ctx.lineWidth = 6 + flashAlpha * 6;
+                ctx.shadowBlur = 15 + flashAlpha * 25; // Середнє розмиття
+                ctx.shadowColor = `rgba(255, 255, 255, ${0.3 + flashAlpha * 0.7})`;
+                drawHeartLine();
+
+                // --- Шар 3: Яскраве ядро (Core) ---
+                ctx.strokeStyle = `rgba(255, 255, 255, ${0.8 + flashAlpha * 0.2})`;
+                ctx.lineWidth = 2.5;
+                ctx.shadowBlur = 2; // Мінімальне розмиття
+                ctx.shadowColor = 'white';
+                drawHeartLine();
+
                 ctx.shadowBlur = 0; // Скидаємо
+            } else if (hasActivePoints()) {
+                // Процес малювання: тьмяне золото
+                ctx.strokeStyle = 'rgba(255, 215, 0, 0.5)';
+                ctx.lineWidth = 1.5;
+                drawHeartLine();
             }
 
-            // 5. Зірки серця (Активні -> Рожеві)
+            // 5. Зірки серця
             heartPoints.forEach(p => {
                 p.phase += p.blinkSpeed;
                 const currentOpacity = 0.3 + (Math.sin(p.phase) + 1) * 0.35;
@@ -143,12 +139,11 @@
                 if (p.active) {
                     if (isFinished) {
                         // Фінальні зірки: рожеві
-                        ctx.shadowBlur = 15; 
-                        ctx.shadowColor = colorPinkGlow;
+                        ctx.shadowBlur = 15; ctx.shadowColor = colorPinkGlow;
                         ctx.fillStyle = colorPink;
                         ctx.beginPath(); ctx.arc(p.x, p.y, 2.5, 0, Math.PI*2); ctx.fill();
                     } else {
-                        // Активні під час малювання: білі
+                        // Під час малювання: білі
                         ctx.shadowBlur = 10; ctx.shadowColor = 'white';
                         ctx.fillStyle = colorActive;
                         ctx.beginPath(); ctx.arc(p.x, p.y, 2.2, 0, Math.PI*2); ctx.fill();
@@ -165,7 +160,19 @@
             requestAnimationFrame(draw);
         }
 
-        // Допоміжна функція
+        // Допоміжна функція малювання лінії (щоб не дублювати код)
+        function drawHeartLine() {
+            ctx.beginPath();
+            let hasMoved = false;
+            heartPoints.forEach((p) => {
+                if(p.active) {
+                    if(!hasMoved) { ctx.moveTo(p.x, p.y); hasMoved = true; }
+                    else { ctx.lineTo(p.x, p.y); }
+                }
+            });
+            ctx.stroke();
+        }
+
         function hasActivePoints() {
             for(let i=0; i<heartPoints.length; i++) {
                 if(heartPoints[i].active) return true;
@@ -181,15 +188,15 @@
             });
 
             if (heartPoints.every(p => p.active)) {
-                flashAlpha = 1.0; // Запускаємо спалах
-                isFinished = true; // Фіксуємо фінальний (рожевий) стан
+                flashAlpha = 1.0; 
+                isFinished = true;
                 
                 if(navigator.vibrate) navigator.vibrate([100, 50, 100]);
                 
                 setTimeout(() => {
                     document.getElementById('msg').style.opacity = 1;
                     document.getElementById('hint').style.opacity = 0;
-                }, 1000); // Поява тексту після основного спалаху
+                }, 1200); // Поява тексту після ефектного спалаху
             }
         }
 
