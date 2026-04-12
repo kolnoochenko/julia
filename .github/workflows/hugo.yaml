@@ -14,6 +14,10 @@ concurrency:
   group: "pages"
   cancel-in-progress: false
 
+# Додаємо примусове використання Node.js 24 для всіх кроків
+env:
+  FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: true
+
 jobs:
   # Робота зі збірки сайту
   build:
@@ -24,13 +28,16 @@ jobs:
         with:
           submodules: recursive
           fetch-depth: 0
+          
       - name: Setup Hugo
         uses: peaceiris/actions-hugo@v3
         with:
           hugo-version: 'latest'
           extended: true
+          
       - name: Build
         run: hugo --minify
+        
       - name: Upload artifact
         uses: actions/upload-pages-artifact@v3
         with:
@@ -48,60 +55,47 @@ jobs:
         id: deployment
         uses: actions/deploy-pages@v4
 
-      # 1. Завантажуємо код ще раз, щоб мати доступ до історії Git для скрипта
+      # Завантажуємо код, щоб скрипт міг аналізувати зміни (git diff)
       - name: Checkout code for Telegram
         uses: actions/checkout@v4
         with:
           fetch-depth: 0
 
-      # 2. Скрипт розумного сповіщення
+      # Скрипт розумного сповіщення
       - name: Send Telegram Notification
         if: success()
         run: |
           echo "=== ПОЧАТОК РОБОТИ СКРИПТА ==="
           
           # Шукаємо змінений md файл в останньому коміті
-          # HEAD~1 HEAD порівнює попередній і поточний стан
           CHANGED_FILE=$(git diff --name-only HEAD~1 HEAD | grep "content/.*\.md$" | head -n 1)
           
-          # Якщо це перший коміт або diff не спрацював, пробуємо інший метод
           if [ -z "$CHANGED_FILE" ]; then
              CHANGED_FILE=$(git show --name-only --format= HEAD | grep "content/.*\.md$" | head -n 1)
           fi
 
           echo "Знайдено файл: $CHANGED_FILE"
 
-          if [ -n "$CHANGED_FILE" ]; then
-              # --- ВАРІАНТ А: Знайшли новий пост ---
-              echo "Обробляємо пост..."
+          if [ -n "$CHANGED_FILE" ] && [ -f "$CHANGED_FILE" ]; then
+              echo "Обробляємо новий пост..."
               
-              # 1. Витягуємо заголовок (видаляємо title: і лапки)
+              # Витягуємо заголовок
               POST_TITLE=$(grep "^title:" "$CHANGED_FILE" | sed 's/^title:[[:space:]]*//' | tr -d '"' | tr -d "'")
               
-              # 2. Формуємо правильне посилання (Slugify):
-              # - Прибираємо 'content/' з початку і назву секретної папки (шлях Hugo бере від кореня)
-              # - Прибираємо '.md' з кінця
-              # - Робимо всі букви маленькими
-              # - Замінюємо пробіли на дефіси
+              # Формуємо посилання
               SLUG=$(echo "$CHANGED_FILE" | sed 's/^content\///' | sed 's/\.md$//' | tr '[:upper:]' '[:lower:]' | sed 's/ /-/g')
               
               POST_LINK="https://for-my-sunshine.com.ua/$SLUG/"
-              
               MESSAGE="💌 <b>Новий запис!</b>%0A%0A📝 Тема: $POST_TITLE%0A%0A$POST_LINK"
-          
           else
-              # --- ВАРІАНТ Б: Пост не знайдено (наприклад, змінили налаштування) ---
               echo "Markdown файлів не знайдено, відправляємо загальне сповіщення."
-              
               COMMIT_MSG="${{ github.event.head_commit.message }}"
-              
-              # !!! ВАЖЛИВО: ЗАМІНІТЬ secret-view-A1B2 НА ВАШУ РЕАЛЬНУ ПАПКУ !!!
+              # Посилання на секретний розділ
               MESSAGE="⚙️ <b>Блог оновлено!</b>%0A%0AКоментар: $COMMIT_MSG%0A%0A👉 https://for-my-sunshine.com.ua/secret-view-j/"
           fi
 
           echo "Відправляємо запит в Telegram..."
 
-          # Відправка через curl
           curl -s -X POST https://api.telegram.org/bot${{ secrets.TELEGRAM_TOKEN }}/sendMessage \
           -d chat_id=${{ secrets.TELEGRAM_CHAT_ID }} \
           -d parse_mode=HTML \
