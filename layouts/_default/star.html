@@ -4,47 +4,45 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>Для моєї Юлі</title>
-    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght=0,400;1,600&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;1,600&display=swap" rel="stylesheet">
     <style>
-        body, html { margin: 0; padding: 0; width: 100%; height: 100%; overflow: hidden; background-color: #000008; }
+        /* Глибокий темно-синій фон для виразності */
+        body, html { margin: 0; padding: 0; width: 100%; height: 100%; overflow: hidden; background-color: #000015; }
         canvas { display: block; touch-action: none; position: fixed; top: 0; left: 0; z-index: 1; }
+        
         #msg {
-    position: fixed;
-    top: 50%;
-    left: 50%;
-    transform: translate(-50%, -50%);
-    color: white;
-    font-family: 'Playfair Display', serif; 
-    font-style: italic;
-    font-weight: 600;
-    
-    /* Змінюємо розмір шрифту: 28px для мобільних, 32px для великих екранів */
-    font-size: 26px; 
-    
-    text-align: center;
-    opacity: 0;
-    transition: opacity 2.5s ease-in-out;
-    pointer-events: none;
-    
-    /* Обмежуємо ширину, щоб текст не виходив за межі "вушок" серця */
-    width: 200px; 
-    
-    letter-spacing: 1px;
-    text-shadow: 0 0 15px rgba(255, 255, 255, 0.6), 0 0 30px rgba(255, 215, 0, 0.3);
-    z-index: 10;
-    line-height: 1.2;
-}
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            color: white;
+            font-family: 'Playfair Display', serif; 
+            font-style: italic;
+            font-weight: 600;
+            font-size: 26px; 
+            text-align: center;
+            opacity: 0;
+            transition: opacity 2.5s ease-in-out;
+            pointer-events: none;
+            
+            /* Фіксуємо ширину для центрування всередині серця */
+            width: 220px; 
+            letter-spacing: 1px;
+            text-shadow: 0 0 15px rgba(255, 255, 255, 0.6), 0 0 30px rgba(255, 215, 0, 0.3);
+            z-index: 10;
+            line-height: 1.3;
+        }
 
-/* Додаємо медіа-запит для планшетів та комп'ютерів, щоб там текст був більшим */
-@media (min-width: 600px) {
-    #msg {
-        font-size: 32px;
-        width: 300px;
-    }
-}
+        @media (min-width: 600px) {
+            #msg {
+                font-size: 32px;
+                width: 350px;
+            }
+        }
+
         #hint {
             position: fixed; bottom: 40px; width: 100%; text-align: center;
-            color: rgba(255,255,255,0.3); font-family: sans-serif; font-size: 13px; z-index: 10;
+            color: rgba(255,255,255,0.4); font-family: sans-serif; font-size: 13px; z-index: 10;
             letter-spacing: 1px;
         }
     </style>
@@ -61,7 +59,6 @@
         if (!ctx) return;
         let w, h, stars = [], heartPoints = [], isFinished = false, flashAlpha = 0;
 
-        // Палітра
         const colorGold = '#FFD700';       
         const colorActive = '#FFFFFF';     
         const colorPink = '#FF69B4';       
@@ -71,11 +68,20 @@
             w = canvas.width = window.innerWidth;
             h = canvas.height = window.innerHeight;
             
-            stars = Array.from({length: 120}, () => ({
-                x: Math.random() * w, y: Math.random() * h,
-                r: Math.random() * 0.8, o: Math.random(),
-                s: 0.01 + Math.random() * 0.02
-            }));
+            // --- ПОСИЛЕНИЙ ЗОРЯНИЙ ФОН ---
+            stars = [];
+            // Збільшили кількість зірок до 250
+            for (let i = 0; i < 250; i++) {
+                stars.push({
+                    x: Math.random() * w,
+                    y: Math.random() * h,
+                    // Різноманітність розмірів: деякі зірки більші
+                    r: Math.random() * Math.random() * 1.5, 
+                    // Посилена прозорість: небо виглядає вираженішим
+                    o: 0.2 + Math.random() * 0.7,
+                    s: 0.005 + Math.random() * 0.02
+                });
+            }
 
             heartPoints = [];
             const centerX = w / 2;
@@ -96,15 +102,17 @@
         }
 
         function draw() {
-            ctx.fillStyle = '#000008';
+            // Глибокий темно-синій для виразності фону
+            ctx.fillStyle = '#000015';
             ctx.fillRect(0, 0, w, h);
 
-            // 1. Фонові зірки
+            // 1. Фонові зірки (тепер густіші)
             stars.forEach(s => {
                 ctx.fillStyle = `rgba(255, 255, 255, ${s.o})`;
                 ctx.beginPath(); ctx.arc(s.x, s.y, s.r, 0, Math.PI*2); ctx.fill();
                 s.o += (Math.random() - 0.5) * 0.03;
-                if(s.o < 0.1) s.o = 0.1; if(s.o > 0.7) s.o = 0.7;
+                // Посилений діапазон мерехтіння
+                if(s.o < 0.3) s.o = 0.3; if(s.o > 0.9) s.o = 0.9;
             });
 
             // 2. Підказка (пунктир)
@@ -116,64 +124,54 @@
                 ctx.closePath(); ctx.stroke(); ctx.setLineDash([]);
             }
 
-            // 3. Зменшення спалаху (логіка)
             if (flashAlpha > 0) {
                 flashAlpha -= 0.012;
             }
 
-            // 4. КОНТУР З ЕФЕКТОМ СВІТІННЯ (STACKED GLOW)
             if (hasActivePoints() && isFinished) {
-                // Малюємо багатошарове світіння поверх лінії
-                ctx.shadowBlur = 0; ctx.setLineDash([]); // Чистимо
+                ctx.shadowBlur = 0; ctx.setLineDash([]); 
 
-                // --- Шар 1: Широкий ореол (Broad Glow) ---
+                // Ефектний рожевий спалах
                 ctx.strokeStyle = `rgba(255, 105, 180, ${0.2 + flashAlpha * 0.3})`;
                 ctx.lineWidth = 12 + flashAlpha * 10;
-                ctx.shadowBlur = 40 + flashAlpha * 40; // Дуже широке розмиття
+                ctx.shadowBlur = 40 + flashAlpha * 40; 
                 ctx.shadowColor = `rgba(255, 20, 147, ${0.4 + flashAlpha * 0.6})`;
                 drawHeartLine();
 
-                // --- Шар 2: Інтенсивне світіння (Intense Glow) ---
                 ctx.strokeStyle = `rgba(255, 20, 147, ${0.5 + flashAlpha * 0.5})`;
                 ctx.lineWidth = 6 + flashAlpha * 6;
-                ctx.shadowBlur = 15 + flashAlpha * 25; // Середнє розмиття
+                ctx.shadowBlur = 15 + flashAlpha * 25; 
                 ctx.shadowColor = `rgba(255, 255, 255, ${0.3 + flashAlpha * 0.7})`;
                 drawHeartLine();
 
-                // --- Шар 3: Яскраве ядро (Core) ---
                 ctx.strokeStyle = `rgba(255, 255, 255, ${0.8 + flashAlpha * 0.2})`;
                 ctx.lineWidth = 2.5;
-                ctx.shadowBlur = 2; // Мінімальне розмиття
+                ctx.shadowBlur = 2; 
                 ctx.shadowColor = 'white';
                 drawHeartLine();
 
-                ctx.shadowBlur = 0; // Скидаємо
+                ctx.shadowBlur = 0; 
             } else if (hasActivePoints()) {
-                // Процес малювання: тьмяне золото
                 ctx.strokeStyle = 'rgba(255, 215, 0, 0.5)';
                 ctx.lineWidth = 1.5;
                 drawHeartLine();
             }
 
-            // 5. Зірки серця
             heartPoints.forEach(p => {
                 p.phase += p.blinkSpeed;
                 const currentOpacity = 0.3 + (Math.sin(p.phase) + 1) * 0.35;
 
                 if (p.active) {
                     if (isFinished) {
-                        // Фінальні зірки: рожеві
                         ctx.shadowBlur = 15; ctx.shadowColor = colorPinkGlow;
                         ctx.fillStyle = colorPink;
                         ctx.beginPath(); ctx.arc(p.x, p.y, 2.5, 0, Math.PI*2); ctx.fill();
                     } else {
-                        // Під час малювання: білі
                         ctx.shadowBlur = 10; ctx.shadowColor = 'white';
                         ctx.fillStyle = colorActive;
                         ctx.beginPath(); ctx.arc(p.x, p.y, 2.2, 0, Math.PI*2); ctx.fill();
                     }
                 } else {
-                    // Неактивні: золото
                     ctx.shadowBlur = 5; ctx.shadowColor = colorGold;
                     ctx.fillStyle = `rgba(255, 215, 0, ${currentOpacity})`;
                     ctx.beginPath(); ctx.arc(p.x, p.y, 1.5, 0, Math.PI*2); ctx.fill();
@@ -184,7 +182,6 @@
             requestAnimationFrame(draw);
         }
 
-        // Допоміжна функція малювання лінії (щоб не дублювати код)
         function drawHeartLine() {
             ctx.beginPath();
             let hasMoved = false;
@@ -198,10 +195,7 @@
         }
 
         function hasActivePoints() {
-            for(let i=0; i<heartPoints.length; i++) {
-                if(heartPoints[i].active) return true;
-            }
-            return false;
+            return heartPoints.some(p => p.active);
         }
 
         function handleTouch(ex, ey) {
@@ -214,13 +208,11 @@
             if (heartPoints.every(p => p.active)) {
                 flashAlpha = 1.0; 
                 isFinished = true;
-                
                 if(navigator.vibrate) navigator.vibrate([100, 50, 100]);
-                
                 setTimeout(() => {
                     document.getElementById('msg').style.opacity = 1;
                     document.getElementById('hint').style.opacity = 0;
-                }, 1200); // Поява тексту після ефектного спалаху
+                }, 1200); 
             }
         }
 
