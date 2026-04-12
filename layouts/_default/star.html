@@ -20,15 +20,28 @@
         }
         .sub-msg { font-size: 18px; opacity: 0.8; margin-top: 10px; font-weight: 400; letter-spacing: 2px; }
         @media (min-width: 600px) { #msg { font-size: 32px; width: 350px; } .sub-msg { font-size: 22px; } }
+        
         #hint {
             position: fixed; bottom: 60px; width: 100%; text-align: center;
             color: rgba(255,215,0,0.4); font-family: sans-serif; font-size: 16px; z-index: 10;
-            letter-spacing: 1px;
+            letter-spacing: 1px; display: none; /* Спочатку ховаємо */
         }
+
+        /* Кнопка дозволу для iOS */
+        #start-btn {
+            position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%);
+            padding: 15px 30px; background: rgba(255, 215, 0, 0.2); color: #FFD700;
+            border: 1px solid #FFD700; font-family: 'Playfair Display', serif; font-style: italic;
+            font-size: 20px; border-radius: 25px; z-index: 100; cursor: pointer;
+            text-shadow: 0 0 5px #FFD700; box-shadow: 0 0 15px rgba(255, 215, 0, 0.3);
+            transition: all 0.3s ease;
+        }
+        #start-btn:active { background: rgba(255, 215, 0, 0.4); transform: translate(-50%, -50%) scale(0.95); }
     </style>
 </head>
 <body>
     <canvas id="c"></canvas>
+    <button id="start-btn">Почати ✨</button>
     <div id="msg">
         Я тебе люблю
         <div class="sub-msg">Ти мій всесвіт</div>
@@ -43,11 +56,17 @@
         if (!ctx) return;
 
         let w, h, stars = [], heartPoints = [], isFinished = false, flashAlpha = 0;
+        
+        // Змінні паралаксу
+        let baseTiltX = 0, baseTiltY = 0; // Початковий нахил (калібрування)
+        let currentTiltX = 0, currentTiltY = 0; // Поточний нахил
+        let targetOffsetX = 0, targetOffsetY = 0; // Цільове зміщення
+        let isParallaxActive = false; // Чи активний доступ до датчиків
 
-        const colorGold = '#FFD700';
-        const colorHeart = '#FF0000';
-        const colorGlow = '#FF4500';
-        const colorActive = '#FFFFFF';
+        const colorGold = '#FFD700';       
+        const colorHeart = '#FF0000';      
+        const colorGlow = '#FF4500';       
+        const colorActive = '#FFFFFF';     
 
         function init() {
             w = canvas.width = window.innerWidth;
@@ -55,11 +74,12 @@
             stars = [];
             for (let i = 0; i < 250; i++) {
                 stars.push({
-                    x: Math.random() * w,
-                    y: Math.random() * h,
+                    x: Math.random() * w, y: Math.random() * h,
                     r: Math.random() * Math.random() * 1.6, 
                     o: 0.3 + Math.random() * 0.6,
-                    s: 0.005 + Math.random() * 0.02
+                    s: 0.005 + Math.random() * 0.02,
+                    // Глибина для паралаксу (чим менше, тим повільніше рухається зірка)
+                    depth: 0.1 + Math.random() * 0.9 
                 });
             }
 
@@ -69,25 +89,41 @@
                 const t = (i / 22) * Math.PI * 2;
                 const x = centerX + 16 * Math.pow(Math.sin(t), 3) * scale;
                 const y = centerY - (13 * Math.cos(t) - 5 * Math.cos(2*t) - 2 * Math.cos(3*t) - Math.cos(4*t)) * scale;
-                heartPoints.push({
-                    x: x, y: y, active: false, 
-                    phase: Math.random() * 10,
-                    blinkSpeed: 0.04 + Math.random() * 0.04
-                });
+                heartPoints.push({ x: x, y: y, active: false, phase: Math.random() * 10, blinkSpeed: 0.04 + Math.random() * 0.04 });
             }
         }
 
         function draw() {
-            ctx.fillStyle = '#000000';
-            ctx.fillRect(0, 0, w, h);
+            ctx.fillStyle = '#000000'; ctx.fillRect(0, 0, w, h);
 
+            // 1. ПАРАЛАКС: Розрахунок плавного зміщення
+            // Плавне наближення до цільового значення (easing)
+            currentTiltX += (targetOffsetX - currentTiltX) * 0.08;
+            currentTiltY += (targetOffsetY - currentTiltY) * 0.08;
+
+            // 2. Малювання фонових зірок із паралаксом
             stars.forEach(function(s) {
+                // Зміщення залежить від нахилу телефону та глибини зірки
+                const parallaxX = currentTiltX * s.depth;
+                const parallaxY = currentTiltY * s.depth;
+                
+                // Додаємо зміщення до базових координат зірки
+                let finalX = s.x + parallaxX;
+                let finalY = s.y + parallaxY;
+
+                // Зациклення координат (щоб зірки не зникали за екраном)
+                if (finalX < 0) finalX = w + (finalX % w);
+                if (finalX > w) finalX = finalX % w;
+                if (finalY < 0) finalY = h + (finalY % h);
+                if (finalY > h) finalY = finalY % h;
+
                 ctx.fillStyle = 'rgba(255, 255, 255, ' + s.o + ')';
-                ctx.beginPath(); ctx.arc(s.x, s.y, s.r, 0, Math.PI*2); ctx.fill();
+                ctx.beginPath(); ctx.arc(finalX, finalY, s.r, 0, Math.PI*2); ctx.fill();
                 s.o += (Math.random() - 0.5) * 0.03;
                 if(s.o < 0.2) s.o = 0.2; if(s.o > 0.9) s.o = 0.9;
             });
 
+            // 3. Підказка (Пунктир) - ЗАЛИШАЄТЬСЯ СТАТИЧНОЮ
             if (!isFinished && flashAlpha <= 0) {
                 ctx.strokeStyle = 'rgba(255, 215, 0, 0.12)';
                 ctx.lineWidth = 0.5; ctx.setLineDash([3, 6]);
@@ -96,25 +132,23 @@
 
             if (flashAlpha > 0) flashAlpha -= 0.012;
 
+            // 4. КОНТУР СЕРЦЯ - ЗАЛИШАЄТЬСЯ СТАТИЧНИМ
             if (isFinished) {
                 ctx.strokeStyle = 'rgba(255, 0, 0, ' + (0.4 + flashAlpha * 0.6) + ')';
                 ctx.lineWidth = 10 + flashAlpha * 10;
-                ctx.shadowBlur = 35 + flashAlpha * 45;
-                ctx.shadowColor = colorGlow;
+                ctx.shadowBlur = 35 + flashAlpha * 45; ctx.shadowColor = colorGlow;
                 ctx.beginPath(); drawHeartLine(true); ctx.stroke();
 
-                ctx.strokeStyle = 'white';
-                ctx.lineWidth = 2;
-                ctx.shadowBlur = 5;
-                ctx.shadowColor = colorGold;
+                ctx.strokeStyle = 'white'; ctx.lineWidth = 2;
+                ctx.shadowBlur = 5; ctx.shadowColor = colorGold;
                 ctx.beginPath(); drawHeartLine(true); ctx.stroke();
                 ctx.shadowBlur = 0;
             } else if (heartPoints.some(function(p) { return p.active; })) {
-                ctx.strokeStyle = colorHeart;
-                ctx.lineWidth = 2;
+                ctx.strokeStyle = colorHeart; ctx.lineWidth = 2;
                 ctx.beginPath(); drawHeartLine(true); ctx.stroke();
             }
 
+            // 5. Зірки серця - ЗАЛИШАЮТЬСЯ СТАТИЧНИМИ
             heartPoints.forEach(function(p) {
                 p.phase += p.blinkSpeed;
                 const currentOpacity = 0.3 + (Math.sin(p.phase) + 1) * 0.35;
@@ -128,7 +162,6 @@
                     ctx.beginPath(); ctx.arc(p.x, p.y, 1.8, 0, Math.PI*2); ctx.fill();
                 }
             });
-            
             ctx.shadowBlur = 0;
             requestAnimationFrame(draw);
         }
@@ -138,7 +171,7 @@
             heartPoints.forEach(function(p) {
                 if(!onlyActive || p.active) {
                     if(!moved) { ctx.moveTo(p.x, p.y); moved = true; }
-                    else { ctx.lineTo(p.x, p.y); }
+                    else ctx.lineTo(p.x, p.y);
                 }
             });
             if (!onlyActive) ctx.closePath();
@@ -152,22 +185,69 @@
             if (heartPoints.every(function(p) { return p.active; })) {
                 flashAlpha = 1.0; isFinished = true;
                 if(navigator.vibrate) navigator.vibrate([100, 50, 100]);
-                setTimeout(function() { 
-                    document.getElementById('msg').style.opacity = 1; 
-                    document.getElementById('hint').style.opacity = 0; 
-                }, 1200);
+                setTimeout(function() { document.getElementById('msg').style.opacity = 1; document.getElementById('hint').style.opacity = 0; }, 1200);
             }
         }
 
-        canvas.addEventListener('touchmove', function(e) { 
-            e.preventDefault(); 
-            handleTouch(e.touches[0].clientX, e.touches[0].clientY); 
-        }, {passive: false});
-        
-        canvas.addEventListener('mousemove', function(e) { 
-            if(e.buttons > 0) handleTouch(e.clientX, e.clientY); 
+        // --- ЛОГІКА ДАТЧИКІВ РУХУ (iOS/Android) ---
+        function activateParallax() {
+            if (typeof DeviceOrientationEvent !== 'undefined' && typeof DeviceOrientationEvent.requestPermission === 'function') {
+                // iOS 13+ вимагає дозволу користувача
+                DeviceOrientationEvent.requestPermission()
+                    .then(function(response) {
+                        if (response === 'granted') {
+                            window.addEventListener('deviceorientation', handleOrientation);
+                            isParallaxActive = true;
+                        }
+                    })
+                    .catch(console.error);
+            } else {
+                // Android або старі iOS
+                window.addEventListener('deviceorientation', handleOrientation);
+                isParallaxActive = true;
+            }
+        }
+
+        function handleOrientation(event) {
+            // event.beta: нахил вперед/назад (-180 до 180)
+            // event.gamma: нахил вліво/вправо (-90 до 90)
+            
+            // Якщо це перший запуск датчиків, калібруємо (запам'ятовуємо початковий стан)
+            if (!baseTiltX && !baseTiltY) {
+                baseTiltX = event.gamma;
+                baseTiltY = event.beta;
+            }
+
+            // Розраховуємо відносний нахил
+            let relativeTiltX = event.gamma - baseTiltX;
+            let relativeTiltY = event.beta - baseTiltY;
+
+            // Обмежуємо значення, щоб зміщення не було занадто великим
+            if (relativeTiltX > 30) relativeTiltX = 30;
+            if (relativeTiltX < -30) relativeTiltX = -30;
+            if (relativeTiltY > 30) relativeTiltY = 30;
+            if (relativeTiltY < -30) relativeTiltY = -30;
+
+            // Цільове зміщення (сила паралаксу: x1.5 та x1)
+            targetOffsetX = relativeTiltX * 1.5;
+            targetOffsetY = relativeTiltY * 1.0; 
+        }
+
+        // --- ОБРОБНИК КНОПКИ ПОЧАТКУ ---
+        const startBtn = document.getElementById('start-btn');
+        startBtn.addEventListener('click', function() {
+            startBtn.style.opacity = '0'; // Плавно ховаємо
+            setTimeout(function() {
+                startBtn.style.display = 'none'; // Прибираємо з DOM
+                // Показуємо підказку
+                document.getElementById('hint').style.display = 'block';
+            }, 300);
+            
+            activateParallax(); // Запитуємо дозвіл на датчики
         });
 
+        canvas.addEventListener('touchmove', function(e) { e.preventDefault(); handleTouch(e.touches[0].clientX, e.touches[0].clientY); }, {passive: false});
+        canvas.addEventListener('mousemove', function(e) { if(e.buttons > 0) handleTouch(e.clientX, e.clientY); });
         window.addEventListener('resize', init);
         init(); draw();
     });
