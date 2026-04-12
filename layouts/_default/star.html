@@ -40,7 +40,7 @@
     <canvas id="c"></canvas>
     <button id="start-btn">Почати ✨</button>
     <div id="msg">
-        Я тебе люблю
+        Я тебе люблю ❤️
         <div class="sub-msg">Ти мій всесвіт</div>
     </div>
     <div id="hint">З'єднай золоті зірочки...</div>
@@ -59,7 +59,7 @@
         let targetOffsetX = 0, targetOffsetY = 0;
 
         const colorGold = '#FFD700';       
-        const colorHeart = '#FF0000';      
+        const colorHeartDim = 'rgba(255, 0, 0, 0.4)'; // Приглушений червоний для процесу
         const colorGlow = '#FF4500';       
 
         function init() {
@@ -71,7 +71,7 @@
                     x: Math.random() * w, y: Math.random() * h,
                     r: Math.random() * Math.random() * 1.7, 
                     o: 0.3 + Math.random() * 0.6,
-                    depth: 0.5 + Math.random() * 2.5 // Глибокий діапазон зміщення
+                    depth: 0.5 + Math.random() * 2.5
                 });
             }
 
@@ -88,17 +88,14 @@
         function draw() {
             ctx.fillStyle = '#000000'; ctx.fillRect(0, 0, w, h);
 
-            // Дуже швидка реакція на рух (0.2)
             currentTiltX += (targetOffsetX - currentTiltX) * 0.2;
             currentTiltY += (targetOffsetY - currentTiltY) * 0.2;
 
             stars.forEach(function(s) {
                 const parallaxX = currentTiltX * s.depth;
                 const parallaxY = currentTiltY * s.depth;
-                
                 let finalX = (s.x + parallaxX) % w;
                 let finalY = (s.y + parallaxY) % h;
-
                 if (finalX < 0) finalX += w;
                 if (finalY < 0) finalY += h;
 
@@ -117,6 +114,7 @@
             if (flashAlpha > 0) flashAlpha -= 0.015;
 
             if (isFinished) {
+                // Фінальний яскравий стан
                 ctx.strokeStyle = 'rgba(255, 0, 0, ' + (0.4 + flashAlpha * 0.6) + ')';
                 ctx.lineWidth = 10 + flashAlpha * 10;
                 ctx.shadowBlur = 35 + flashAlpha * 45; ctx.shadowColor = colorGlow;
@@ -126,7 +124,10 @@
                 ctx.shadowBlur = 5; ctx.shadowColor = colorGold;
                 ctx.beginPath(); drawPath(); ctx.stroke();
             } else if (heartPoints.some(p => p.active)) {
-                ctx.strokeStyle = colorHeart; ctx.lineWidth = 2;
+                // ПРИГЛУШЕНИЙ ЧЕРВОНИЙ ПІД ЧАС МАЛЮВАННЯ
+                ctx.strokeStyle = colorHeartDim; 
+                ctx.lineWidth = 1.2; // Тонша лінія
+                ctx.shadowBlur = 0; // Прибрав світіння під час малювання
                 ctx.beginPath(); drawPath(); ctx.stroke();
             }
 
@@ -134,8 +135,10 @@
                 p.phase += p.blinkSpeed;
                 const op = 0.3 + (Math.sin(p.phase) + 1) * 0.35;
                 if (p.active) {
-                    ctx.shadowBlur = 10; ctx.shadowColor = 'white';
-                    ctx.fillStyle = isFinished ? colorGold : 'white';
+                    // Менше світіння для активних точок у процесі
+                    ctx.shadowBlur = isFinished ? 10 : 5; 
+                    ctx.shadowColor = 'white';
+                    ctx.fillStyle = isFinished ? colorGold : 'rgba(255, 255, 255, 0.8)';
                     ctx.beginPath(); ctx.arc(p.x, p.y, 2.5, 0, Math.PI*2); ctx.fill();
                 } else {
                     ctx.shadowBlur = 8; ctx.shadowColor = colorGold;
@@ -162,7 +165,6 @@
                 baseTiltX = event.gamma;
                 baseTiltY = event.beta;
             }
-            // Максимальна чутливість (множники 6.0 та 5.0)
             targetOffsetX = (event.gamma - baseTiltX) * 6.0;
             targetOffsetY = (event.beta - baseTiltY) * 5.0; 
         }
