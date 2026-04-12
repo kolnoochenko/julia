@@ -12,9 +12,8 @@
             position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%);
             color: white; font-family: 'Playfair Display', serif; font-style: italic; font-weight: 600;
             font-size: 32px; text-align: center; opacity: 0;
-            transition: opacity 2s ease-in-out;
+            transition: opacity 2.5s ease-in-out;
             pointer-events: none; width: 85%;
-            /* Твій доданий letter-spacing та золотисте сяйво */
             letter-spacing: 1px;
             text-shadow: 0 0 15px rgba(255, 255, 255, 0.6), 0 0 30px rgba(255, 215, 0, 0.3);
             z-index: 10; line-height: 1.4;
@@ -36,10 +35,13 @@
         const canvas = document.getElementById('c');
         const ctx = canvas.getContext('2d');
         if (!ctx) return;
-        let w, h, stars = [], heartPoints = [], isFinished = false, isSpawning = false;
+        let w, h, stars = [], heartPoints = [], isFinished = false, flashAlpha = 0;
 
-        const colorGold = '#FFD700';
-        const colorActive = '#FFFFFF';
+        // Палітра
+        const colorGold = '#FFD700';       // Неактивні точки
+        const colorActive = '#FFFFFF';     // Активні точки (до з'єднання)
+        const colorPink = '#FF69B4';       // Рожевий контур та зірки (після)
+        const colorPinkGlow = '#FF1493';   // Насичене рожеве світіння
 
         function init() {
             w = canvas.width = window.innerWidth;
@@ -73,6 +75,7 @@
             ctx.fillStyle = '#000008';
             ctx.fillRect(0, 0, w, h);
 
+            // 1. Фонові зірки
             stars.forEach(s => {
                 ctx.fillStyle = `rgba(255, 255, 255, ${s.o})`;
                 ctx.beginPath(); ctx.arc(s.x, s.y, s.r, 0, Math.PI*2); ctx.fill();
@@ -80,7 +83,8 @@
                 if(s.o < 0.1) s.o = 0.1; if(s.o > 0.7) s.o = 0.7;
             });
 
-            if (!isFinished && !isSpawning) {
+            // 2. Підказка (пунктир)
+            if (!isFinished && flashAlpha <= 0) {
                 ctx.strokeStyle = 'rgba(255, 215, 0, 0.1)';
                 ctx.lineWidth = 0.5; ctx.setLineDash([3, 6]); ctx.beginPath();
                 ctx.moveTo(heartPoints[0].x, heartPoints[0].y);
@@ -88,40 +92,69 @@
                 ctx.closePath(); ctx.stroke(); ctx.setLineDash([]);
             }
 
-            if (isSpawning) {
-                ctx.strokeStyle = 'white';
-                ctx.lineWidth = 6;
-                ctx.shadowBlur = 100;
-                ctx.shadowColor = 'white';
+            // 3. ЕФЕКТ ТРИВАЛОГО РОЖЕВОГО СПАЛАХУ
+            if (flashAlpha > 0) {
+                // Спалах згасає в рожевий
+                ctx.strokeStyle = `rgba(255, 105, 180, ${flashAlpha})`; 
+                ctx.lineWidth = 10; // Трохи товстіший для ефекту
+                ctx.shadowBlur = 100 * flashAlpha;
+                ctx.shadowColor = 'white'; // Основне сяйво біле, контур рожевий
                 ctx.beginPath();
                 ctx.moveTo(heartPoints[0].x, heartPoints[0].y);
                 heartPoints.forEach(p => ctx.lineTo(p.x, p.y));
                 ctx.closePath();
                 ctx.stroke();
                 ctx.shadowBlur = 0;
-                isSpawning = false;
+                flashAlpha -= 0.012; // Трохи повільніше згасання
             }
 
-            ctx.strokeStyle = 'rgba(255, 215, 0, 0.5)';
-            ctx.lineWidth = 1.5; ctx.beginPath();
-            let hasActive = false;
-            heartPoints.forEach((p) => {
-                if(p.active) {
-                    if(!hasActive) { ctx.moveTo(p.x, p.y); hasActive = true; }
-                    else { ctx.lineTo(p.x, p.y); }
+            // 4. Лінія з'єднання (Золота -> Рожева з розмиттям)
+            if (hasActivePoints()) {
+                if (isFinished) {
+                    // Фінальний стан: рожевий з розмиттям
+                    ctx.strokeStyle = colorPink;
+                    ctx.lineWidth = 2.5;
+                    ctx.shadowBlur = 15; // Сильніше розмиття
+                    ctx.shadowColor = colorPinkGlow;
+                } else {
+                    // Процес: тьмяне золото
+                    ctx.strokeStyle = 'rgba(255, 215, 0, 0.5)';
+                    ctx.lineWidth = 1.5;
+                    ctx.shadowBlur = 0;
                 }
-            });
-            ctx.stroke();
+                
+                ctx.beginPath();
+                let hasMoved = false;
+                heartPoints.forEach((p) => {
+                    if(p.active) {
+                        if(!hasMoved) { ctx.moveTo(p.x, p.y); hasMoved = true; }
+                        else { ctx.lineTo(p.x, p.y); }
+                    }
+                });
+                ctx.stroke();
+                ctx.shadowBlur = 0; // Скидаємо
+            }
 
+            // 5. Зірки серця (Активні -> Рожеві)
             heartPoints.forEach(p => {
                 p.phase += p.blinkSpeed;
                 const currentOpacity = 0.3 + (Math.sin(p.phase) + 1) * 0.35;
 
                 if (p.active) {
-                    ctx.shadowBlur = 10; ctx.shadowColor = 'white';
-                    ctx.fillStyle = `rgba(255, 255, 255, 1)`;
-                    ctx.beginPath(); ctx.arc(p.x, p.y, 2.2, 0, Math.PI*2); ctx.fill();
+                    if (isFinished) {
+                        // Фінальні зірки: рожеві
+                        ctx.shadowBlur = 15; 
+                        ctx.shadowColor = colorPinkGlow;
+                        ctx.fillStyle = colorPink;
+                        ctx.beginPath(); ctx.arc(p.x, p.y, 2.5, 0, Math.PI*2); ctx.fill();
+                    } else {
+                        // Активні під час малювання: білі
+                        ctx.shadowBlur = 10; ctx.shadowColor = 'white';
+                        ctx.fillStyle = colorActive;
+                        ctx.beginPath(); ctx.arc(p.x, p.y, 2.2, 0, Math.PI*2); ctx.fill();
+                    }
                 } else {
+                    // Неактивні: золото
                     ctx.shadowBlur = 5; ctx.shadowColor = colorGold;
                     ctx.fillStyle = `rgba(255, 215, 0, ${currentOpacity})`;
                     ctx.beginPath(); ctx.arc(p.x, p.y, 1.5, 0, Math.PI*2); ctx.fill();
@@ -132,21 +165,31 @@
             requestAnimationFrame(draw);
         }
 
+        // Допоміжна функція
+        function hasActivePoints() {
+            for(let i=0; i<heartPoints.length; i++) {
+                if(heartPoints[i].active) return true;
+            }
+            return false;
+        }
+
         function handleTouch(ex, ey) {
-            if (isFinished || isSpawning) return;
+            if (isFinished) return;
             heartPoints.forEach(p => {
                 const d = Math.hypot(ex - p.x, ey - p.y);
                 if (d < 35) p.active = true;
             });
 
             if (heartPoints.every(p => p.active)) {
-                isSpawning = true;
-                isFinished = true;
+                flashAlpha = 1.0; // Запускаємо спалах
+                isFinished = true; // Фіксуємо фінальний (рожевий) стан
+                
                 if(navigator.vibrate) navigator.vibrate([100, 50, 100]);
+                
                 setTimeout(() => {
                     document.getElementById('msg').style.opacity = 1;
                     document.getElementById('hint').style.opacity = 0;
-                }, 300);
+                }, 1000); // Поява тексту після основного спалаху
             }
         }
 
