@@ -63,11 +63,11 @@
 
         let w, h, stars = [], heartPoints = [], isFinished = false, flashAlpha = 0;
 
-        // --- УЛЮБЛЕНА ПАЛІТРА ---
-        const colorGold = '#FFD700';       // Золото для зірок-підказок
-        const colorHeart = '#FF0000';      // Червоний для контуру
-        const colorGlow = '#FF4500';       // Оранжево-червоне гаряче світіння
-        const colorActive = '#FFFFFF';     // Біле ядро при дотику
+    const colorGold = {{ "#FFD700" | safeJS }};
+    const colorHeart = {{ "#FF0000" | safeJS }};
+    const colorGlow = {{ "#FF4500" | safeJS }};
+    const colorActive = {{ "#FFFFFF" | safeJS }};
+    
 
         function init() {
             w = canvas.width = window.innerWidth;
