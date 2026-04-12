@@ -1,155 +1,132 @@
-const canvas = document.getElementById('starCanvas');
-const ctx = canvas.getContext('2d');
-const message = document.getElementById('loveMessage');
+<!DOCTYPE html>
+<html lang="uk">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Для моєї Юлі</title>
+    <style>
+        body, html { margin: 0; padding: 0; width: 100%; height: 100%; overflow: hidden; background-color: #000005; }
+        canvas { display: block; touch-action: none; position: fixed; top: 0; left: 0; }
+        #msg {
+            position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%);
+            color: white; font-family: 'Georgia', serif; font-size: 28px; text-align: center;
+            opacity: 0; transition: opacity 2s; pointer-events: none; width: 90%;
+            text-shadow: 0 0 20px rgba(255,255,255,0.8);
+        }
+        #hint {
+            position: absolute; bottom: 30px; width: 100%; text-align: center;
+            color: rgba(255,255,255,0.4); font-family: sans-serif; font-size: 14px;
+        }
+    </style>
+</head>
+<body>
+    <canvas id="c"></canvas>
+    <div id="msg">Ти моє найяскравіше сузір'я, Юля ❤️</div>
+    <div id="hint">Намалюй серце серед зірок...</div>
 
-// Налаштування екрану
-let width, height;
-function setCanvasSize() {
-    width = canvas.width = window.innerWidth;
-    height = canvas.height = window.innerHeight;
-}
-setCanvasSize();
-window.addEventListener('resize', setCanvasSize);
+    <script>
+        const canvas = document.getElementById('c');
+        const ctx = canvas.getContext('2d');
+        let w, h, stars = [], points = [], isFinished = false;
 
-// Налаштування зірок
-const numStars = 200; // Скільки зірок буде на небі спочатку
-const stars = [];
-let touchedPoints = []; // Точки, де Юля провела пальцем
-const drawingDistance = 50; // Відстань між точками, щоб провести лінію
-let isMessageShown = false;
+        function resize() {
+            w = canvas.width = window.innerWidth;
+            h = canvas.height = window.innerHeight;
+        }
 
-// Клас Зірки
-class Star {
-    constructor() {
-        this.x = Math.random() * width;
-        this.y = Math.random() * height;
-        this.size = Math.random() * 1.5;
-        this.opacity = Math.random();
-        this.speed = Math.random() * 0.05; // Трохи рухаються
-    }
+        function createStars() {
+            stars = Array.from({length: 150}, () => ({
+                x: Math.random()*w, y: Math.random()*h, 
+                r: Math.random()*1.5, o: Math.random(), s: Math.random()*0.02
+            }));
+        }
 
-    draw() {
-        ctx.fillStyle = `rgba(255, 255, 255, ${this.opacity})`;
-        ctx.beginPath();
-        ctx.arc(this.x, this.y, this.size, 0, Math.PI * 2);
-        ctx.fill();
-    }
+        function draw() {
+            ctx.fillStyle = '#000005';
+            ctx.fillRect(0,0,w,h);
+            
+            stars.forEach(s => {
+                ctx.fillStyle = `rgba(255,255,255,${s.o})`;
+                ctx.beginPath(); ctx.arc(s.x, s.y, s.r, 0, Math.PI*2); ctx.fill();
+                s.o += (Math.random()-0.5)*0.03;
+                if(s.o<0.1) s.o=0.1; if(s.o>1) s.o=1;
+            });
 
-    update() {
-        // Мерехтіння
-        this.opacity += (Math.random() - 0.5) * 0.03;
-        if (this.opacity < 0.1) this.opacity = 0.1;
-        if (this.opacity > 1) this.opacity = 1;
-        
-        // Легкий рух
-        this.y -= this.speed;
-        if (this.y < 0) this.y = height;
-    }
-}
+            if(points.length > 1) {
+                ctx.strokeStyle = isFinished ? 'rgba(255,100,100,0.8)' : 'rgba(255,255,255,0.5)';
+                ctx.lineWidth = 3;
+                ctx.shadowBlur = isFinished ? 15 : 5;
+                ctx.shadowColor = 'white';
+                ctx.beginPath();
+                ctx.moveTo(points[0].x, points[0].y);
+                points.forEach(p => ctx.lineTo(p.x, p.y));
+                ctx.stroke();
+                ctx.shadowBlur = 0;
+            }
+            requestAnimationFrame(draw);
+        }
 
-// Ініціалізація зірок
-function initStars() {
-    for (let i = 0; i < numStars; i++) {
-        stars.push(new Star());
-    }
-}
+        // Алгоритм перевірки серця
+        function checkHeart() {
+            if (points.length < 15) return false;
 
-// Функція малювання фонового неба
-function drawSky() {
-    ctx.fillStyle = '#000005';
-    ctx.fillRect(0, 0, width, height);
-    stars.forEach(star => {
-        star.update();
-        star.draw();
-    });
-}
+            let minX = Math.min(...points.map(p => p.x));
+            let maxX = Math.max(...points.map(p => p.x));
+            let minY = Math.min(...points.map(p => p.y));
+            let maxY = Math.max(...points.map(p => p.y));
+            
+            let width = maxX - minX;
+            let height = maxY - minY;
 
-// Функція малювання ліній сузір'я
-function drawConstellation() {
-    if (touchedPoints.length < 2) return;
+            // 1. Перевірка пропорцій (серце не має бути занадто вузьким)
+            if (width < 50 || height < 50) return false;
 
-    ctx.strokeStyle = 'rgba(255, 255, 255, 0.4)'; // Колір ліній
-    ctx.lineWidth = 1;
-    ctx.beginPath();
-    ctx.moveTo(touchedPoints[0].x, touchedPoints[0].y);
+            // 2. Перевірка на "замкненість" (початок і кінець близько один до одного)
+            const start = points[0];
+            const end = points[points.length - 1];
+            const dist = Math.hypot(start.x - end.x, start.y - end.y);
 
-    for (let i = 1; i < touchedPoints.length; i++) {
-        ctx.lineTo(touchedPoints[i].x, touchedPoints[i].y);
-    }
-    ctx.stroke();
+            // 3. Перевірка на "впадинку" зверху (спрощена)
+            // Шукаємо середню точку по X і дивимось чи є там вигин вниз
+            const midX = (minX + maxX) / 2;
+            const topPoints = points.filter(p => p.y < minY + height * 0.3);
+            
+            if (dist < width * 0.5 && topPoints.length > 2) {
+                return true; // Схоже на серце!
+            }
+            return false;
+        }
 
-    // Додаємо яскраві зірки в точках дотику
-    touchedPoints.forEach(point => {
-        ctx.fillStyle = 'white';
-        ctx.beginPath();
-        ctx.arc(point.x, point.y, 2, 0, Math.PI * 2);
-        ctx.fill();
-        // Ефект світіння
-        ctx.shadowBlur = 10;
-        ctx.shadowColor = 'white';
-    });
-    ctx.shadowBlur = 0; // Скидаємо тінь
-}
+        canvas.addEventListener('touchstart', () => {
+            if (isFinished) return;
+            points = [];
+            document.getElementById('hint').style.opacity = 0;
+        });
 
-// Головний цикл анімації
-function animate() {
-    drawSky();
-    drawConstellation();
-    checkCompletion();
-    requestAnimationFrame(animate);
-}
+        canvas.addEventListener('touchmove', e => {
+            if (isFinished) return;
+            e.preventDefault();
+            const t = e.touches[0];
+            points.push({x: t.clientX, y: t.clientY});
+        }, {passive: false});
 
-// Відстеження дотиків (для iPhone)
-canvas.addEventListener('touchstart', handleTouchStart, false);
-canvas.addEventListener('touchmove', handleTouchMove, false);
+        canvas.addEventListener('touchend', () => {
+            if (isFinished) return;
+            if (checkHeart()) {
+                isFinished = true;
+                document.getElementById('msg').style.opacity = 1;
+                // Можна додати вібрацію iPhone
+                if (navigator.vibrate) navigator.vibrate([100, 50, 100]);
+            } else {
+                // Якщо не серце — стираємо через 0.5 сек
+                setTimeout(() => { if(!isFinished) points = []; }, 500);
+            }
+        });
 
-function getTouchPos(e) {
-    return {
-        x: e.touches[0].clientX,
-        y: e.touches[0].clientY
-    };
-}
-
-function handleTouchStart(e) {
-    const pos = getTouchPos(e);
-    // Додаємо першу точку, якщо ще не малювали
-    if (touchedPoints.length === 0) {
-        touchedPoints.push(pos);
-    }
-}
-
-function handleTouchMove(e) {
-    e.preventDefault(); // Запобігає скролу на iPhone
-    const pos = getTouchPos(e);
-    
-    if (touchedPoints.length === 0) return;
-
-    const lastPoint = touchedPoints[touchedPoints.length - 1];
-    // Обчислюємо відстань від останньої точки
-    const dist = Math.hypot(pos.x - lastPoint.x, pos.y - lastPoint.y);
-
-    // Додаємо точку, тільки якщо палець просунувся достатньо далеко
-    // Це створює красиві сегменти ліній
-    if (dist > drawingDistance) {
-        touchedPoints.push(pos);
-    }
-}
-
-// Перевіряємо, чи достатньо вона "намалювала"
-function checkCompletion() {
-    // Якщо вона провела достатньо довгу лінію (наприклад, 10 точок)
-    if (touchedPoints.length > 10 && !isMessageShown) {
-        isMessageShown = true;
-        showMessage();
-    }
-}
-
-function showMessage() {
-    message.style.opacity = 1;
-    // Через 5 секунд лінії можна стерти, щоб почати заново (за бажанням)
-    // setTimeout(() => { touchedPoints = []; isMessageShown = false; message.style.opacity = 0; }, 5000);
-}
-
-// Запуск
-initStars();
-animate();
+        window.addEventListener('resize', resize);
+        resize();
+        createStars();
+        draw();
+    </script>
+</body>
+</html>
