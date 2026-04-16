@@ -27,12 +27,12 @@
             "state": {
               "type": "markdown",
               "state": {
-                "file": "content/secret-view-j/pro-togo-kogo-nemozhlyvo-vkrasty.md",
+                "file": "content/secret-view-j/Znovu i znovu i znovu.md",
                 "mode": "source",
-                "source": true
+                "source": false
               },
               "icon": "lucide-file",
-              "title": "pro-togo-kogo-nemozhlyvo-vkrasty"
+              "title": "Znovu i znovu i znovu"
             }
           }
         ],
@@ -231,9 +231,29 @@
               "icon": "lucide-info",
               "title": "File properties for Putaneska"
             }
+          },
+          {
+            "id": "e5ac39f417157b2a",
+            "type": "leaf",
+            "state": {
+              "type": "SC-custom-variables-view",
+              "state": {},
+              "icon": "code-glyph",
+              "title": "Shell commands: Custom variables"
+            }
+          },
+          {
+            "id": "8868d5ed2c5468b9",
+            "type": "leaf",
+            "state": {
+              "type": "SC-custom-variables-view",
+              "state": {},
+              "icon": "code-glyph",
+              "title": "Shell commands: Custom variables"
+            }
           }
         ],
-        "currentTab": 9
+        "currentTab": 11
       }
     ],
     "direction": "horizontal",
@@ -255,6 +275,14 @@
   },
   "active": "5393e1cc76f9d4f0",
   "lastOpenFiles": [
+    "content/secret-view-j/Маленька дівчинка.md",
+    "content/secret-view-j/Кількісь калорій та приклад меню на тиждень.md",
+    "content/secret-view-j/Від масажу до вічності.md",
+    "content/secret-view-j/Your Lifetime Premium.md",
+    "content/secret-view-j/Znovu i znovu i znovu.md",
+    "static/images/25qere2.jpg",
+    "static/images/Gemini_Generated_Image_ere25qere25qere2.jpg",
+    "content/secret-view-j/pro-togo-kogo-nemozhlyvo-vkrasty.md",
     "static/images/image_8.jpg",
     "static/images/image_88.png",
     "static/images/Unconfirmed 604777.crdownload",
@@ -263,7 +291,6 @@
     "content/secret-view-j/Not a script. Just you..md",
     "content/secret-view-j/No more \"What ifs...\".md",
     "content/secret-view-j/Forever, and one more day.md",
-    "content/secret-view-j/pro-togo-kogo-nemozhlyvo-vkrasty.md",
     "static/images/image_8.png",
     "static/images/Unconfirmed 481197.crdownload",
     "layouts/_default/single.html",
@@ -274,20 +301,13 @@
     "static/images/putaneska-gemini.jpg",
     "static/images/putaneska-cover-gs.jpg",
     "static/images/putaneska-cover-gs.png",
-    "static/images/putaneska-cover-g.png",
     "static/images/Unconfirmed 822181.crdownload",
-    "static/images/putaneska-cover.jpg",
     "layouts/_default/list.html",
     "layouts/_default",
     "layouts/partials/header.html",
-    "static/images/putaneska.jpg",
     "static/images",
-    "content/secret-view-j/Your Lifetime Premium.md",
-    "content/secret-view-j/Кількісь калорій та приклад меню на тиждень.md",
-    "content/secret-view-j/Від масажу до вічності.md",
     "content/secret-view-j/Чому ти?.md",
     "content/secret-view-j/Поки ти спиш....md",
-    "content/secret-view-j/Маленька дівчинка.md",
     "content/secret-view-j/-tekst-pro-yiyi-strakhy-iaki-ty-bachysh-i-pryimaiesh.md",
     "content/secret-view-j/filename.md",
     "content/secret-view-j/Тестовий пост.md",
