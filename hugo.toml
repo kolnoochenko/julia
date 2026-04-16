@@ -25,5 +25,11 @@ disableKinds = ["RSS", "sitemap", "taxonomy", "term"]
     favicon32x32 = "/favicon-32x32.png"
     apple_touch_icon = "/apple-touch-icon.png"
 
+# Дозволяє raw HTML у форматі TOML
+[markup]
+  [markup.goldmark]
+    [markup.goldmark.renderer]
+      unsafe = true
+      
 # Порожнє меню (щоб не було кнопки Home)
 [menu]
