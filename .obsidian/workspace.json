@@ -29,7 +29,7 @@
               "state": {
                 "file": "content/secret-view-j/Moya-yurysdyktsiya.md",
                 "mode": "source",
-                "source": false
+                "source": true
               },
               "icon": "lucide-file",
               "title": "Moya-yurysdyktsiya"
