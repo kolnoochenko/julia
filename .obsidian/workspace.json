@@ -27,12 +27,12 @@
             "state": {
               "type": "markdown",
               "state": {
-                "file": "content/secret-view-j/Moya yurysdyktsiya.md",
+                "file": "content/secret-view-j/Moya-yurysdyktsiya.md",
                 "mode": "source",
-                "source": true
+                "source": false
               },
               "icon": "lucide-file",
-              "title": "Moya yurysdyktsiya"
+              "title": "Moya-yurysdyktsiya"
             }
           }
         ],
@@ -276,7 +276,7 @@
   "active": "5393e1cc76f9d4f0",
   "lastOpenFiles": [
     "content/secret-view-j/Znovu-i-znovu-i-znovu.md",
-    "content/secret-view-j/Moya yurysdyktsiya.md",
+    "content/secret-view-j/Moya-yurysdyktsiya.md",
     "content/secret-view-j/Winter Story.md",
     "content/secret-view-j/Маленька дівчинка.md",
     "content/secret-view-j/Кількісь калорій та приклад меню на тиждень.md",
