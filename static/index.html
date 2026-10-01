@@ -1,0 +1,187 @@
+<!DOCTYPE html>
+<html lang="uk">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+    <title>Для Юлі</title>
+    <!-- Підключення красивого шрифту -->
+    <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,600;1,400&display=swap" rel="stylesheet">
+    <style>
+        body {
+            margin: 0;
+            padding: 0;
+            background-color: #0a0a0c;
+            color: #fceee9;
+            font-family: 'Cormorant Garamond', serif;
+            height: 100vh;
+            width: 100vw;
+            overflow: hidden;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            /* Прибираємо підсвічування при тапі на iPhone */
+            -webkit-tap-highlight-color: transparent; 
+        }
+        
+        #bg-layer {
+            position: absolute;
+            top: 0; left: 0; width: 100%; height: 100%;
+            background: radial-gradient(circle at center, #1a1518 0%, #0a0a0c 100%);
+            z-index: 1;
+        }
+
+        /* Анімація частинок світла на фоні */
+        .particle {
+            position: absolute;
+            background-color: rgba(255, 230, 200, 0.4);
+            border-radius: 50%;
+            pointer-events: none;
+            animation: float 10s infinite linear;
+        }
+
+        @keyframes float {
+            0% { transform: translateY(100vh) scale(0); opacity: 0; }
+            50% { opacity: 1; }
+            100% { transform: translateY(-10vh) scale(1.5); opacity: 0; }
+        }
+
+        #content-wrapper {
+            position: relative;
+            z-index: 10;
+            width: 85%;
+            max-width: 400px;
+            text-align: center;
+        }
+
+        /* Стилі для тексту */
+        .phrase {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            width: 100%;
+            font-size: 1.8rem;
+            line-height: 1.4;
+            font-weight: 400;
+            opacity: 0;
+            pointer-events: none;
+            transition: opacity 2s ease-in-out;
+            text-shadow: 0 0 15px rgba(255, 255, 255, 0.15);
+        }
+
+        .phrase.active {
+            opacity: 1;
+        }
+
+        /* Стартовий екран */
+        #start-screen {
+            position: absolute;
+            top: 0; left: 0; width: 100%; height: 100%;
+            z-index: 20;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            background-color: transparent;
+            cursor: pointer;
+            transition: opacity 1.5s ease;
+        }
+
+        #start-text {
+            font-size: 1.3rem;
+            opacity: 0.7;
+            animation: pulse 2.5s infinite;
+            letter-spacing: 1px;
+        }
+
+        @keyframes pulse {
+            0%, 100% { opacity: 0.3; }
+            50% { opacity: 0.9; }
+        }
+
+        /* Ховаємо плеєр для iOS Safari, але не вимикаємо його */
+        #media-player {
+            position: absolute;
+            width: 10px;
+            height: 10px;
+            opacity: 0.01;
+            pointer-events: none;
+            z-index: -1;
+        }
+    </style>
+</head>
+<body>
+    <div id="bg-layer"></div>
+    
+    <!-- Використовуємо надісланий відеофайл як джерело звуку -->
+    <video id="media-player" playsinline loop>
+        <source src="1000033235.mp4" type="video/mp4">
+    </video>
+
+    <div id="start-screen">
+        <div id="start-text">Торкнись екрану</div>
+    </div>
+
+    <!-- Текст зізнання -->
+    <div id="content-wrapper">
+        <div class="phrase">Я хочу, щоб ти почула те, що говорить тобі моє серце.</div>
+        <div class="phrase">Ти неймовірна. Правда.</div>
+        <div class="phrase">В тобі є щось особливе, що неможливо пояснити словами.</div>
+        <div class="phrase">Твоє світло, твоя ніжність, твоя глибина, твоя тиха, дивовижна краса.</div>
+        <div class="phrase">Іноді я просто дивлюся на тебе і не можу повірити, що така жінка існує.</div>
+        <div class="phrase">Така справжня, така тепла, така прекрасна.</div>
+        <div class="phrase">Ти немов ранкове світло, яке м'яко торкається світу і робить його добрішим.</div>
+        <div class="phrase">З добрим ранком, кохана ❤️</div>
+      
+    </div>
+
+    <script>
+        // Генеруємо частинки світла (світлячки) на фоні
+        const bgLayer = document.getElementById('bg-layer');
+        for (let i = 0; i < 35; i++) {
+            let particle = document.createElement('div');
+            particle.className = 'particle';
+            particle.style.width = Math.random() * 5 + 'px';
+            particle.style.height = particle.style.width;
+            particle.style.left = Math.random() * 100 + 'vw';
+            particle.style.animationDuration = (Math.random() * 10 + 8) + 's';
+            particle.style.animationDelay = Math.random() * 5 + 's';
+            bgLayer.appendChild(particle);
+        }
+
+        const phrases = document.querySelectorAll('.phrase');
+        const startScreen = document.getElementById('start-screen');
+        const mediaPlayer = document.getElementById('media-player');
+        
+        let currentPhraseIndex = -1;
+        let started = false;
+
+        // Обробник дотиків до екрану
+        document.body.addEventListener('click', function() {
+            if (!started) {
+                // ПЕРШИЙ ДОТИК: вмикаємо музику (відео)
+                mediaPlayer.play();
+                
+                // Ховаємо стартовий екран
+                startScreen.style.opacity = '0';
+                setTimeout(() => startScreen.style.display = 'none', 1500);
+                
+                // Показуємо першу фразу
+                currentPhraseIndex = 0;
+                phrases[currentPhraseIndex].classList.add('active');
+                started = true;
+            } else {
+                // НАСТУПНІ ДОТИКИ: перемикаємо фрази
+                if (currentPhraseIndex < phrases.length - 1) {
+                    phrases[currentPhraseIndex].classList.remove('active');
+                    currentPhraseIndex++;
+                    
+                    // Невелика затримка перед появою наступної фрази для плавності
+                    setTimeout(() => {
+                        phrases[currentPhraseIndex].classList.add('active');
+                    }, 800);
+                }
+            }
+        });
+    </script>
+</body>
+</html>
