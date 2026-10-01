@@ -31,20 +31,21 @@
             z-index: 1;
         }
 
-        /* Анімація частинок світла ("пилинки" у променях) на фоні */
+        /* Анімація яскравих частинок світла на фоні */
         .particle {
             position: absolute;
-            background-color: rgba(255, 255, 255, 0.7); /* М'які білі частинки */
-            box-shadow: 0 0 12px rgba(255, 255, 255, 0.6); /* Легке світіння навколо пилинок */
+            background-color: #ffffff; /* Чистий білий колір для максимальної видимості */
+            box-shadow: 0 0 15px 2px rgba(255, 255, 255, 0.9); /* Потужне біле світіння навколо */
             border-radius: 50%;
             pointer-events: none;
             animation: float 10s infinite linear;
         }
 
         @keyframes float {
-            0% { transform: translateY(100vh) scale(0); opacity: 0; }
-            50% { opacity: 1; }
-            100% { transform: translateY(-10vh) scale(1.5); opacity: 0; }
+            0% { transform: translateY(100vh) scale(0.5); opacity: 0; }
+            30% { opacity: 0.9; }
+            70% { opacity: 0.9; }
+            100% { transform: translateY(-10vh) scale(1.8); opacity: 0; }
         }
 
         #content-wrapper {
@@ -58,17 +59,17 @@
         /* Стилі для основного тексту */
         .phrase {
             position: absolute;
-            top: 45%; /* Трохи вище центру, щоб залишити місце для підпису */
+            top: 45%; 
             left: 50%;
             transform: translate(-50%, -50%);
             width: 100%;
             font-size: 1.8rem;
             line-height: 1.4;
-            font-weight: 600; /* Зробив трохи жирнішим для кращого читання на світлому фоні */
+            font-weight: 600; 
             opacity: 0;
             pointer-events: none;
             transition: opacity 1.5s ease-in-out;
-            text-shadow: 0 0 15px rgba(255, 255, 255, 0.9); /* М'яке біле свічення навколо тексту */
+            text-shadow: 0 0 15px rgba(255, 255, 255, 0.9);
         }
 
         .phrase.active {
@@ -82,9 +83,9 @@
             left: 50%;
             transform: translateX(-50%);
             font-size: 1.1rem;
-            color: rgba(107, 82, 77, 0.6); /* Напівпрозорий коричнево-рожевий колір */
+            color: rgba(107, 82, 77, 0.7); 
             opacity: 0;
-            pointer-events: none; /* Щоб клік проходив крізь текст на body */
+            pointer-events: none; 
             transition: opacity 1s ease-in-out;
             animation: pulseHint 2.5s infinite;
             z-index: 10;
@@ -93,7 +94,7 @@
 
         @keyframes pulseHint {
             0%, 100% { opacity: 0.3; }
-            50% { opacity: 0.8; }
+            50% { opacity: 0.9; }
         }
 
         /* Стартовий екран */
@@ -111,14 +112,14 @@
 
         #start-text {
             font-size: 1.4rem;
-            opacity: 0.7;
+            opacity: 0.8;
             animation: pulse 2.5s infinite;
             letter-spacing: 1px;
-            text-shadow: 0 0 15px rgba(255,255,255,1); /* Посилене біле свічення для світлого фону */
+            text-shadow: 0 0 15px rgba(255,255,255,1);
         }
 
         @keyframes pulse {
-            0%, 100% { opacity: 0.3; }
+            0%, 100% { opacity: 0.4; }
             50% { opacity: 1; }
         }
 
@@ -136,7 +137,7 @@
 <body>
     <div id="bg-layer"></div>
     
-    <!-- Використовуємо надісланий відеофайл як джерело звуку -->
+    <!-- Використовуємо відеофайл як джерело звуку -->
     <video id="media-player" playsinline loop>
         <source src="VID_20261001_234255_465.mp4" type="video/mp4">
     </video>
@@ -161,15 +162,16 @@
     <div id="hint-text"></div>
 
     <script>
-        // Генеруємо частинки світла (білі пилинки) на фоні
+        // Генеруємо помітніші білі частинки на фоні
         const bgLayer = document.getElementById('bg-layer');
-        for (let i = 0; i < 35; i++) {
+        for (let i = 0; i < 30; i++) {
             let particle = document.createElement('div');
             particle.className = 'particle';
-            particle.style.width = Math.random() * 6 + 2 + 'px'; /* Робимо їх трохи більшими та м'якшими */
+            // Збільшений розмір частинок (від 5px до 10px)
+            particle.style.width = Math.random() * 5 + 5 + 'px';
             particle.style.height = particle.style.width;
             particle.style.left = Math.random() * 100 + 'vw';
-            particle.style.animationDuration = (Math.random() * 10 + 8) + 's';
+            particle.style.animationDuration = (Math.random() * 8 + 6) + 's';
             particle.style.animationDelay = Math.random() * 5 + 's';
             bgLayer.appendChild(particle);
         }
@@ -206,7 +208,7 @@
                 // Показуємо першу фразу і підказку
                 currentPhraseIndex = 0;
                 phrases[currentPhraseIndex].classList.add('active');
-                setTimeout(updateHint, 1000); // Затримка появи підказки
+                setTimeout(updateHint, 1000); 
                 started = true;
             } else {
                 // Якщо ми на останній фразі ("Початок")
@@ -227,12 +229,12 @@
                 } else {
                     // Звичайний перехід між фразами
                     phrases[currentPhraseIndex].classList.remove('active');
-                    hintText.style.opacity = '0'; // Ховаємо підказку на момент зміни
+                    hintText.style.opacity = '0'; 
                     currentPhraseIndex++;
                     
                     setTimeout(() => {
                         phrases[currentPhraseIndex].classList.add('active');
-                        updateHint(); // Показуємо нову підказку
+                        updateHint(); 
                     }, 800);
                 }
             }
