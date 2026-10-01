@@ -10,8 +10,8 @@
         body {
             margin: 0;
             padding: 0;
-            background-color: #0a0a0c;
-            color: #fceee9;
+            background-color: #fde4e1; /* Ніжний пудровий фон */
+            color: #6b524d; /* Теплий коричнево-рожевий колір тексту */
             font-family: 'Cormorant Garamond', serif;
             height: 100vh;
             width: 100vw;
@@ -26,14 +26,15 @@
         #bg-layer {
             position: absolute;
             top: 0; left: 0; width: 100%; height: 100%;
-            background: radial-gradient(circle at center, #1a1518 0%, #0a0a0c 100%);
+            /* Градієнт від світло-рожевого до персикового */
+            background: radial-gradient(circle at center, #fff5f3 0%, #fde4e1 100%);
             z-index: 1;
         }
 
         /* Анімація частинок світла на фоні */
         .particle {
             position: absolute;
-            background-color: rgba(255, 230, 200, 0.4);
+            background-color: rgba(255, 255, 255, 0.6); /* М'які білі частинки */
             border-radius: 50%;
             pointer-events: none;
             animation: float 10s infinite linear;
@@ -53,10 +54,10 @@
             text-align: center;
         }
 
-        /* Стилі для тексту */
+        /* Стилі для основного тексту */
         .phrase {
             position: absolute;
-            top: 50%;
+            top: 45%; /* Трохи вище центру, щоб залишити місце для підпису */
             left: 50%;
             transform: translate(-50%, -50%);
             width: 100%;
@@ -65,12 +66,32 @@
             font-weight: 400;
             opacity: 0;
             pointer-events: none;
-            transition: opacity 2s ease-in-out;
-            text-shadow: 0 0 15px rgba(255, 255, 255, 0.15);
+            transition: opacity 1.5s ease-in-out;
+            text-shadow: 0 0 15px rgba(255, 255, 255, 0.9);
         }
 
         .phrase.active {
             opacity: 1;
+        }
+
+        /* Стилі для підпису-підказки знизу */
+        #hint-text {
+            position: absolute;
+            bottom: 20%;
+            left: 50%;
+            transform: translateX(-50%);
+            font-size: 1.1rem;
+            opacity: 0;
+            pointer-events: none; /* Щоб клік проходив крізь текст на body */
+            transition: opacity 1s ease-in-out;
+            animation: pulseHint 2.5s infinite;
+            z-index: 10;
+            font-style: italic;
+        }
+
+        @keyframes pulseHint {
+            0%, 100% { opacity: 0.3; }
+            50% { opacity: 0.8; }
         }
 
         /* Стартовий екран */
@@ -87,18 +108,19 @@
         }
 
         #start-text {
-            font-size: 1.3rem;
+            font-size: 1.4rem;
             opacity: 0.7;
             animation: pulse 2.5s infinite;
             letter-spacing: 1px;
+            text-shadow: 0 0 10px rgba(255,255,255,1);
         }
 
         @keyframes pulse {
             0%, 100% { opacity: 0.3; }
-            50% { opacity: 0.9; }
+            50% { opacity: 1; }
         }
 
-        /* Ховаємо плеєр для iOS Safari, але не вимикаємо його */
+        /* Ховаємо плеєр для iOS Safari */
         #media-player {
             position: absolute;
             width: 10px;
@@ -114,7 +136,7 @@
     
     <!-- Використовуємо надісланий відеофайл як джерело звуку -->
     <video id="media-player" playsinline loop>
-        <source src="VID_20261001_234255_465.mp4" type="video/mp4">
+        <source src="1000033235.mp4" type="video/mp4">
     </video>
 
     <div id="start-screen">
@@ -131,16 +153,18 @@
         <div class="phrase">Така справжня, така тепла, така прекрасна.</div>
         <div class="phrase">Ти немов ранкове світло, яке м'яко торкається світу і робить його добрішим.</div>
         <div class="phrase">З добрим ранком, кохана ❤️</div>
-      
     </div>
+    
+    <!-- Підказка, яка буде змінюватись -->
+    <div id="hint-text"></div>
 
     <script>
-        // Генеруємо частинки світла (світлячки) на фоні
+        // Генеруємо частинки світла на фоні
         const bgLayer = document.getElementById('bg-layer');
         for (let i = 0; i < 35; i++) {
             let particle = document.createElement('div');
             particle.className = 'particle';
-            particle.style.width = Math.random() * 5 + 'px';
+            particle.style.width = Math.random() * 6 + 2 + 'px';
             particle.style.height = particle.style.width;
             particle.style.left = Math.random() * 100 + 'vw';
             particle.style.animationDuration = (Math.random() * 10 + 8) + 's';
@@ -151,9 +175,21 @@
         const phrases = document.querySelectorAll('.phrase');
         const startScreen = document.getElementById('start-screen');
         const mediaPlayer = document.getElementById('media-player');
+        const hintText = document.getElementById('hint-text');
         
         let currentPhraseIndex = -1;
         let started = false;
+
+        // Функція для оновлення підказки знизу
+        function updateHint() {
+            if (currentPhraseIndex < phrases.length - 1) {
+                hintText.textContent = "Торкайся далі...";
+                hintText.style.opacity = '1';
+            } else {
+                hintText.textContent = "Початок";
+                hintText.style.opacity = '1';
+            }
+        }
 
         // Обробник дотиків до екрану
         document.body.addEventListener('click', function() {
@@ -165,19 +201,36 @@
                 startScreen.style.opacity = '0';
                 setTimeout(() => startScreen.style.display = 'none', 1500);
                 
-                // Показуємо першу фразу
+                // Показуємо першу фразу і підказку
                 currentPhraseIndex = 0;
                 phrases[currentPhraseIndex].classList.add('active');
+                setTimeout(updateHint, 1000); // Затримка появи підказки
                 started = true;
             } else {
-                // НАСТУПНІ ДОТИКИ: перемикаємо фрази
-                if (currentPhraseIndex < phrases.length - 1) {
+                // Якщо ми на останній фразі ("Початок")
+                if (currentPhraseIndex === phrases.length - 1) {
+                    // Ховаємо останню фразу і підказку
                     phrases[currentPhraseIndex].classList.remove('active');
-                    currentPhraseIndex++;
+                    hintText.style.opacity = '0';
                     
-                    // Невелика затримка перед появою наступної фрази для плавності
+                    // Повертаємось на початок
+                    currentPhraseIndex = 0;
+                    
+                    // Показуємо першу фразу наново
                     setTimeout(() => {
                         phrases[currentPhraseIndex].classList.add('active');
+                        updateHint();
+                    }, 800);
+                    
+                } else {
+                    // Звичайний перехід між фразами
+                    phrases[currentPhraseIndex].classList.remove('active');
+                    hintText.style.opacity = '0'; // Ховаємо підказку на момент зміни
+                    currentPhraseIndex++;
+                    
+                    setTimeout(() => {
+                        phrases[currentPhraseIndex].classList.add('active');
+                        updateHint(); // Показуємо нову підказку
                     }, 800);
                 }
             }
